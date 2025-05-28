@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Password Generator</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
+
     body {
       font-family: Arial, sans-serif;
       background: #f2f2f2;
@@ -15,21 +17,67 @@
     }
 
     .container {
+      position: relative;
       background: white;
-      border: 2px solid #00cc66;
       border-radius: 15px;
       padding: 15px;
       width: 90%;
-      max-width: 350px;
+      max-width: 360px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-height: 100vh;
+      z-index: 1;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      z-index: -1;
+      background: linear-gradient(45deg, #ff0000, #ff9900, #33cc33, #0066ff, #9900cc, #ff0000);
+      background-size: 600% 600%;
+      border-radius: 18px;
+      animation: animatedBorder 8s ease infinite;
+    }
+
+    @keyframes animatedBorder {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .header {
       text-align: center;
-      font-weight: bold;
-      color: #666600;
-      font-size: 18px;
+      font-size: 4vw;
+      font-family: 'Poppins', sans-serif;
+      position: relative;
+      color: #252839;
+      -webkit-text-stroke: 0.3vw #383d52;
       margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .header::before {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      color: #01fe87;
+      -webkit-text-stroke: 0vw #383d52;
+      border-right: 2px solid #01fe87;
+      overflow: hidden;
+      animation: animate 6s linear infinite;
+    }
+
+    @keyframes animate {
+      0%, 10%, 100% { width: 0; }
+      70%, 90% { width: 100%; }
     }
 
     .buttons-row {
@@ -63,7 +111,7 @@
       background: linear-gradient(to right, #008000, #00cc66);
     }
 
-    input, .output {
+    input, textarea, .output {
       width: 100%;
       padding: 8px;
       margin: 6px 0;
@@ -92,21 +140,57 @@
       border-radius: 6px;
       padding: 6px;
     }
+
+    .number-section {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .number-output {
+      font-size: 14px;
+      color: #333;
+      margin-top: 5px;
+      white-space: pre-line;
+    }
+
+    .clickable-name {
+      cursor: pointer;
+      background: #e0f7fa;
+      border-radius: 5px;
+      padding: 4px;
+      margin-bottom: 3px;
+    }
+
+    .clickable-name:hover {
+      background: #b2ebf2;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+
+    <!-- Animated Header -->
+    <div class="header" data-text="CLASHER_BOY_RAKIB"> </div>
+
+    <!-- UID Extractor -->
+    <div class="number-section">
+      <div class="label">🔍 Extract Your UID From Facebook Links:</div>
+      <textarea id="numberInput" rows="4" placeholder="Paste Facebook links or text here..." oninput="extractNumber()"></textarea>
+      <div class="number-output" id="extractedNumber">UID: </div>
+      <button class="button copy" style="margin-top: 8px;" onclick="copyExtractedNumber()">Copy UID</button>
+    </div>
+
+    <!-- Social Buttons -->
     <div class="buttons-row">
       <button class="button facebook">Facebook</button>
       <button class="button whatsapp">WhatsApp</button>
       <button class="button telegram">Telegram</button>
     </div>
 
-    <div class="header">CLASHER_BOY_RAKIB</div>
-
-    <div class="label">Type And Copy Your Own Password:</div>
+    <!-- Password Input -->
+    <div class="label">Type And Copy Your Own Password:</div>
     <input type="text" id="inputPassword" placeholder="Example: RAKIB">
-    <div class="output" id="outputPassword">RAKIB#@28</div>
+    <div class="output" id="outputPassword"></div>
     <div class="copy-box" id="copyIdPasswordBox"></div>
 
     <div class="buttons-row">
@@ -114,8 +198,9 @@
       <button class="button clear" onclick="clearInput()">Clear</button>
     </div>
 
-    <div class="label">Copy Name:</div>
-    <div class="output" id="randomName">John Doe</div>
+    <!-- Name Generator -->
+    <div class="label">Copy Name:</div>
+    <div class="output" id="randomName" class="clickable-name" onclick="copyText('randomName')">Loading...</div>
     <div class="copy-box" id="copyIdNameBox"></div>
 
     <div class="buttons-row">
@@ -125,50 +210,7 @@
   </div>
 
   <script>
-    function getTodayDay() {
-      const today = new Date();
-      return String(today.getDate()).padStart(2, '0');
-    }
-
-    function showCopyIdMessage(targetBoxId, message) {
-      const box = document.getElementById(targetBoxId);
-      box.innerText = message;
-      box.style.display = 'block';
-      setTimeout(() => {
-        box.style.display = 'none';
-      }, 2000);
-    }
-
-    function copyPassword() {
-      const inputValue = document.getElementById('inputPassword').value.trim();
-      const day = getTodayDay();
-      const output = document.getElementById('outputPassword');
-
-      if (inputValue) {
-        output.innerText = inputValue + "#@" + day;
-      }
-
-      const copiedText = output.innerText;
-      navigator.clipboard.writeText(copiedText).then(() => {
-        showCopyIdMessage("copyIdPasswordBox", "CopyID by " + copiedText);
-      });
-    }
-
-    function clearInput() {
-      document.getElementById('inputPassword').value = '';
-      document.getElementById('outputPassword').innerText = 'RAKIB#@' + getTodayDay();
-    }
-
-    function copyText(id) {
-      const text = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        showCopyIdMessage("copyIdNameBox", "CopyID by " + text);
-      });
-    }
-
-    function changeName() {
-      const names = ["John Doe",
-
+    const names = ["John Doe", 
 "Taniah Mim",
 "Nazma Islam",
 "Simran Khatun",
@@ -590,13 +632,867 @@
 "Ramisha Chowdhary",
 "Rehana Mia",
 
- "Søren Jensen", "Amina Begum", "Carlos Diaz", "Nina Patel"];
+
+"Jamie Huang",
+"Ayaan Bush",
+"Everlee Bernard",
+"Jair Nolan",
+"Itzayana Bernal",
+"Eithan Klein",
+"Elianna Stafford",
+"Alfredo Dillon",
+"Laurel Sutton",
+"Warren Melendez",
+"Bethany Snyder",
+"Thiago McCarthy",
+"Kira Cannon",
+"Archie Dalton",
+"Lilian Brandt",
+"Damir Dixon",
+"Blakely Blevins",
+"Avi Deleon",
+"Gabrielle Nelson",
+"Dylan Carter",
+"Lucy Erickson",
+"Johnny McClure",
+"Estella Sherman",
+"Adan Villalobos",
+"Zoya Lamb",
+"Kaysen Knight",
+"Gracie Lang",
+"Wells Dudley",
+"Hadleigh Le",
+"Damien Compton",
+"Elina Ford",
+"Luis Meyers",
+"Leyla Rodgers",
+"Mathias Villanueva",
+"Monroe Campbell",
+"Christopher Rojas",
+"Adaline Gordon",
+"Karter Morrison",
+"Rebecca Fox",
+"Antonio Escobar",
+"Erin Alexander",
+"Kingston Li",
+"Paige Weaver",
+"Tucker Hudson",
+"Kamila Phillips",
+"Andrew House",
+"Sariah Foley",
+"Mohammad Baker",
+"Isla Francis",
+"Harvey Morrow",
+"Reyna Torres",
+"Jayden Woodward",
+"Drew Ellison",
+"Kye Abbott",
+"Melany Underwood",
+"Reece Hodge",
+"Coraline Bravo",
+"Genesis Rodgers",
+"Selah Jimenez",
+"Silas Li",
+"Paige Casey",
+"Armando Hayden",
+"Avayah Dixon",
+"Camden White",
+"Layla Hester",
+"Rene Short",
+"Cheyenne Kerr",
+"Louie Anderson",
+"Ella Dougherty",
+"Brett Flynn",
+"Dorothy Porter",
+"Rhett Brown",
+"Charlotte Salgado",
+"Trace Liu",
+"Kate Rich",
+"Miller Goodwin",
+"Shiloh Burgess",
+"Kolton Meza",
+"Rosa Corona",
+"Darian Shepherd",
+"Katalina Herrera",
+"River Brock",
+"Jada Dalton",
+"Fletcher Rosales",
+"Kinley Waller",
+"Marley Branch",
+"Luisa Hicks",
+"Maddox Beil",
+"Itzel Whitaker",
+"Keith Cardenas",
+"Raven Holmes",
+"King Truong",
+"Judith Leach",
+"Westin Blanchard",
+"Layne Willis",
+"Remington Garrett",
+"Tessa Deleon",
+"Nasir Mosley",
+"Zaniyah Ibarra",
+"Asa Bowers",
+"Elisa Peterson",
+"Santiago Owen",
+"Mikayla Santana",
+"Mohamed Hurley",
+"Rylan Ortega",
+"Kobe Saunders",
+"Meadow Vaughan",
+"Castiel Burns",
+"Emerson Hodges",
+"Alonzo Rodriguez",
+"Evelyn Soto",
+"Barrett Bowen",
+"Dream Thornton",
+"Malik Ware",
+"Eileen Schneider",
+"Raymond Buck",
+"Livia Booth",
+"Chaim Shields",
+"Analia Hodges",
+"Alonzo Shaw",
+"Emersyn Beard",
+"Nathanael Ventura",
+"Zora Berger",
+"Byron Leblanc",
+"Novalee Pope",
+"Gunnar Davila",
+"Rayne Taylor",
+"Jackson Roach",
+"Lyanna Hood",
+"Brixton Riley",
+"Kayla Cano",
+"Terry Lambert",
+"Nina Wu",
+"Kyson Donovan",
+"Azariah Spence",
+"Cillian Livingston",
+"Milena Petersen",
+"Samson Hansen",
+"Hope Giles",
+"Kole Melton",
+"Kamiyah Mueller",
+"Albert Stevens",
+"Katherine Medina",
+"George Swanson",
+"Helen Parker",
+"Caleb James",
+"Quinn Simmons",
+"Harrison Brooks",
+"Autumn Wall",
+"Issac Pace",
+"Giana Alfaro",
+"Xzavier Clayton",
+"Saige Lopez",
+"Michael Perkins",
+"Sage Sandoval",
+"Brantley Figueroa",
+"Lilith Petersen",
+"Samson Holland",
+"Mariah Hinton",
+"Frankie Golden",
+"Giuliana Rivera",
+"Charles Rosario",
+"Louisa Mathews",
+"Jamir Maxwell",
+"Kyla Weiss",
+"Koa Chase",
+"Angie Taylor",
+"Jackson Clements",
+"Cara Keith",
+"Jagger Parra",
+"Dalary Massey",
+"Donald Scott",
+"Aurora Briggs",
+"Case Larsen",
+"Xiomara Wilson",
+"Daniel Colon",
+"Remy Boyle",
+"Robin Duarte",
+"Kynlee Stephenson",
+"Joe Castro",
+"Eloise Cantrell",
+"Harris Herman",
+"Paulina Frazier",
+"Callum Mason",
+"Sienna Norman",
+"Aziel Vaughn",
+"Reign Collier",
+"Edison Fernandez",
+"Amara Small",
+"Rudy Guzman",
+"Ashley Mueller",
+"Albert Hurst",
+"Adalee Russo",
+"Jamie Cabrera",
+"Daleyza Fuentes",
+"Bowen Ray",
+"Ruth Stewart",
+"Nolan Hebert",
+"Kyleigh Bartlett",
+"Kace Griffin",
+"Charlie Nicholson",
+"Rodrigo Nichols",
+"Aliyah Hernandez",
+"Mason Rios",
+"Brooke Murphy",
+"Cameron Person",
+"Dylan Blackwell",
+"Marcellus Potts",
+"Ellison Barrett",
+"Angelo Morrow",
+"Reyna Ramsey",
+"Luciano Lewis",
+"Ellie Yang",
+"Malcolm Harris",
+"Penelope Barron",
+"Dustin Felix",
+"Paisleigh Wallace",
+"Chase Baldwin",
+"Esmeralda Cummings",
+"Raiden Richards",
+"Trinity Edwards",
+"Adrian Conway",
+"Ryann Velazquez",
+"Drew Farrell",
+"Kassidy Daniels",
+"Xander Harmon",
+"Maren Estrada",
+"Phoenix Walter",
+"Penny Lynch",
+"Zane Moore",
+"Emily Ross",
+"Wesley Daniel",
+"Joy Russell",
+"Weston Hubbard",
+"Rosie Holt",
+"Niko Dunlap",
+"Iliana Rivera",
+"Charles Ellis",
+"Ayla Benson",
+"Desmond Marshall",
+"Adalyn Francis",
+"Harvey Avalos",
+"Paloma McBride",
+"Denver Ortiz",
+"Anna Moran",
+"Tate Stark",
+"Kamilah Glover",
+"Mack Carr",
+"Rowan Avery",
+"Jakari Anderson",
+"Ella Weber",
+"Crew Giles",
+"Bailee Chang",
+"Ari Walter",
+"Penny Alexander",
+"Kingston Barron",
+"Anya Gill",
+"Matthias Espinosa",
+"Braylee Holland",
+"Brady Bates",
+"Madilyn Lambert",
+"Mario McCarthy",
+"Kira Campos",
+"Gideon Kline",
+"Sevyn English",
+"Junior Lu",
+"Emani McDaniel",
+"Major Mathis",
+"Anne Parks",
+"Gianni Rios",
+"Brooke Andrade",
+"Abdiel Silva",
+"Lucia Powell",
+"Bennett Boyer",
+"Chaya Zamora",
+"Quentin Tapia",
+"Michaela Schultz",
+"Cody Jacobson",
+"Royal Goodman",
+"Philip Thornton",
+"Haisley Weiss",
+"Koa Moore",
+"Emily Dennis",
+"Emanuel Erickson",
+"Sabrina Richardson",
+"Robert Townsend",
+"Azalea Christian",
+"Ledger Cannon",
+"Noa Cunningham",
+"Alejandro Lynn",
+"Samira Zamora",
+"Quentin Lindsey",
+"Colette Berry",
+"Adonis Todd",
+"Zariah Reynolds",
+"Vincent Wheeler",
+"Sydney Lawson",
+"Lane Stein",
+"Leilany Reyes",
+"Eli Dejesus",
+"Julissa Chung",
+"Ira Murillo",
+"Mikaela Barnes",
+"Damian Macdonald",
+"Rosalia McFarland",
+"Dane Long",
+"Jade Castro",
+"Jasper Hickman",
+"Scarlette Cunningham",
+"Alejandro Vasquez",
+"Rose Hart",
+"Joel Boyer",
+"Chaya Li",
+"Jorge Christensen",
+"Carmen West",
+"Diego Camacho",
+"Armani Tapia",
+"Samir Howell",
+"Mckenna Khan",
+"Kendrick Mann",
+"Paislee Friedman",
+"Darwin Bell",
+"Melody Rasmussen",
+"Will Marks",
+"Monica Trejo",
+"Wesson Bonilla",
+"Romina McIntyre",
+"Eliseo English",
+"Kelly Blair",
+"Troy Vega",
+"Dakota Reed",
+"Easton Willis",
+"Alexa Shah",
+"Zain Walters",
+"Samara Chung",
+"Ira Carey",
+"Alora Chang",
+"Ari Ortiz",
+"Anna Johnston",
+"Felix Mason",
+"Sienna Price",
+"Brooks Grimes",
+"Braelyn Smith",
+"Liam Rubio",
+"Hadassah Huang",
+"Ayaan Allison",
+"Chelsea Conway",
+"Orlando Guerra",
+"Edith Macdonald",
+"Hugh Clements",
+"Cara Hampton",
+"Hank Glover",
+"Alessia Robertson",
+"Emiliano Vazquez",
+"Journee Watkins",
+"Nash Quinn",
+"Heaven Nguyen",
+"Gabriel Rivas",
+"Averie Shannon",
+"Eliel Steele",
+"Rylie Blair",
+"Troy Norris",
+"Arielle Barton",
+"Cassius Pitts",
+"Nala Duarte",
+"Abdullah Gordon",
+"Taylor Lam",
+"Bodie Vincent",
+"Allyson Potts",
+"Alfred Reyes",
+"Audrey Villanueva",
+"Huxley Bernal",
+"Emmeline Bridges",
+"Mohammed Nava",
+"Scout Bryan",
+"Jaxtyn Acosta",
+"Kaia Burton",
+"Zander Allison",
+"Chelsea Esquivel",
+"Bridger Sharp",
+"Camryn Nicholson",
+"Rodrigo Hayes",
+"Iris Murphy",
+"Cameron Leach",
+"Martha Tapia",
+"Samir Stafford",
+"Bridget Cochran",
+"Danny Horne",
+"Marlowe Giles",
+"Kole English",
+"Kelly Yang",
+"Malcolm Owen",
+"Mikayla Clarke",
+"Stetson May",
+"Adriana Singh",
+"Louis Gardner",
+"Jordyn Weiss",
+"Koa Weber",
+"Alayah Espinosa",
+"Khalid Newman",
+"Oaklynn Collier",
+"Edison Mahoney",
+"Promise Rosario",
+"Jedidiah Leach",
+"Martha Quintero",
+"Thatcher Trevino",
+"Priscilla Walker",
+"Luke Sharp",
+"Camryn Montgomery",
+"Maximiliano Hayes",
+"Iris Ventura",
+"Branson Kim",
+"Gabriella Atkinson",
+"Duke Bravo",
+"Amoura Day",
+"Kayson Lane",
+"Amy Bartlett",
+"Kace Rose",
+"Magnolia Meyer",
+"Tristan Gentry",
+"Amelie Montgomery",
+"Maximiliano Davis",
+"Mia Gilbert",
+"Tobias Baxter",
+"Lara Nguyen",
+"Gabriel Hull",
+"Andi Schwartz",
+"Edwin Flores",
+"Emilia Wilkerson",
+"Carmelo Corona",
+"Marianna Savage",
+"Keaton Delarosa",
+"Iyla Stein",
+"Creed Valenzuela",
+"Henley Guerra",
+"Leland Black",
+"Molly Wells",
+"Max Griffith",
+"Alicia Sexton",
+"Mylo Gross",
+"Angel Dennis",
+"Emanuel McClure",
+"Estella Chase",
+"Otis Arroyo",
+"Kyra Guevara",
+"Tommy Conley",
+"Salem Andersen",
+"Alistair McGuire",
+"April Odom",
+"Kylian Morrow",
+"Reyna Harding",
+"Brodie Walsh",
+"Leia Small",
+"Rudy Maldonado",
+"Elaina Avery",
+"Jakari McKenzie",
+"Briar Reyes",
+"Eli Vaughan",
+"Nancy Kemp",
+"Melvin Pitts",
+"Nala Donaldson",
+"Canaan Calhoun",
+"Thalia Stevens",
+"Zachary Cannon",
+"Noa Bentley",
+"Randy Humphrey",
+"Journi Clayton",
+"Boston Ryan",
+"Morgan Powell",
+"Bennett Thompson",
+"Madison Melton",
+"Lennon Hancock",
+"Katelyn Hurst",
+"Neil McIntyre",
+"Rebekah Crane",
+"Fox Meyer",
+"Sara Horton",
+"Garrett Burke",
+"Vera Moyer",
+"Ahmir Bender",
+"Lilyana McFarland",
+"Dane Curry",
+"Alison Novak",
+"Bishop Patton",
+"Lorelei Gonzalez",
+"Ethan Navarro",
+"Winter Adams",
+"Hudson Odom",
+"Laylani Ruiz",
+"Austin Cortes",
+"Lea Keith",
+"Jagger Felix",
+"Paisleigh Gibbs",
+"Deacon Cunningham",
+"Marley Russo",
+"Jamie Bennett",
+"Josephine Mills",
+"Alex Graham",
+"Alaia Liu",
+"Pedro Hammond",
+"Holly Hurley",
+"Van Guerrero",
+"Margot Archer",
+"Ephraim Banks",
+"Cali Pace",
+"Dior Walker",
+"Hazel Duffy",
+"Kyng Sellers",
+"Mercy Glover",
+"Mack Randall",
+"Christina Delarosa",
+"Osiris Wolfe",
+"Hallie Reeves",
+"Clark Ramos",
+"Alice Wilkerson",
+"Carmelo Pittman",
+"Marie Zuniga",
+"Sincere Rosas",
+"Joelle Faulkner",
+"Jabari Knight",
+"Gracie Orozco",
+"Keanu Burgess",
+"Emory Nelson",
+"Dylan Jones",
+"Sophia Cameron",
+"Rayan Herring",
+"Denver Peck",
+"Yousef Barrera",
+"Beatrice Barry",
+"Emery Merritt",
+"Kaisley Jacobson",
+"Legacy Boyd",
+"Georgia Browning",
+"Rohan Rosales",
+"Kinley Morales",
+"Aaron Gross",
+"Angel Richards",
+"Holden Collier",
+"Ivory Tanner",
+"Bruno McCullough",
+"Hana Cisneros",
+"Alden Zavala",
+"Liv Blankenship",
+"Ernesto Maddox",
+"Zainab Spears",
+"Ameer Guerra",
+"Edith Powell",
+"Bennett Norris",
+"Arielle Dyer",
+"Atreus Schmidt",
+"Kimberly Newton",
+"Santino Hinton",
+"Jaelynn Summers",
+"Darius Lamb",
+"Amaia Larson",
+"Rafael Esparza",
+"Ramona McDowell",
+"Lachlan Hanson",
+"Mariana Thornton",
+"Malik Christensen",
+"Carmen Watts",
+"Dakota Vazquez",
+"Journee Day",
+"Kayson Francis",
+"Daniella Ellison",
+"Kye Diaz",
+"Elena Maynard",
+"Landry Yang",
+"Angelina Salas",
+"Zaiden Cobb",
+"Aviana Hampton",
+"Hank Choi",
+"Karla Mata",
+"Ray Melendez",
+"Bethany Dennis",
+"Emanuel Reese",
+"Rosemary Stephens",
+"Messiah Sharp",
+"Camryn Santana",
+"Mohamed Felix",
+"Paisleigh Richardson",
+"Robert Dejesus",
+"Julissa Woodard",
+"Westley Andrade",
+"Emmy Buchanan",
+"Enrique Moses",
+"Karter Farmer",
+"Jamison Arellano",
+"Faye Nicholson",
+"Rodrigo Owen",
+"Mikayla Barajas",
+"Brennan Velasquez",
+"Esme Collins",
+"Miles Lam",
+"Karina Friedman",
+"Darwin Gray",
+"Sarah Delgado",
+"Colt Gray",
+"Sarah Nielsen",
+"Tru Fleming",
+"Fatima Taylor",
+"Jackson Nunez",
+"Mya Allen",
+"Carter Santos",
+"Alana Knapp",
+"Boden Terrell",
+"Paityn Matthews",
+"Preston Gomez",
+"Natalie Sweeney",
+"Nixon Caldwell",
+"Evelynn Zamora",
+"Quentin Pratt",
+"Ailani Nelson",
+"Dylan Dunn",
+"Olive Rhodes",
+"Titus Moss",
+"Bianca Morgan",
+"Hunter Frederick",
+"Sariyah Murphy",
+"Cameron Norton",
+"Kylee Fletcher",
+"Jay Velez",
+"Megan Craig",
+"Odin Schmidt",
+"Kimberly Sherman",
+"Adan Cross",
+"Nayeli Fisher",
+"Gael Alvarez",
+"Leilani Arnold",
+"Abraham Bradley",
+"Vanessa Parsons",
+"Lewis Parrish",
+"Tiana Gardner",
+"Alan Yang",
+"Angelina Bryant",
+"Jonah McCoy",
+"Mckenzie Truong",
+"Ayan Bartlett",
+"Aubrielle Vazquez",
+"Jesse Francis",
+"Daniella Ponce",
+"Langston Christian",
+"Anahi Ford",
+"Luis Coffey",
+"Paola Kirk",
+"Alessandro Barker",
+"Remington Kelly",
+"Cooper Jimenez",
+"Adeline Schneider",
+"Raymond Kennedy",
+"Brianna Michael",
+"Bronson Bradley",
+"Vanessa Lowe",
+"Julius Hughes",
+"Samantha Schaefer",
+"Ishaan Zhang",
+"Sarai Fowler",
+"Kameron Christensen",
+"Carmen Wilkins",
+"Yusuf Garner",
+"Jacqueline Galindo",
+"Salvatore Fowler",
+"Lennon Smith",
+"Liam Thornton",
+"Haisley Baxter",
+"Tomas Erickson",
+"Sabrina Reeves",
+"Clark Mueller",
+"Imani Willis",
+"Remington Wright",
+"Lily Mueller",
+"Albert Romero",
+"Eliza Juarez",
+"Joaquin McCoy",
+"Mckenzie Carson",
+"Ares Maynard",
+"Carolyn Salas",
+"Zaiden Horn",
+"Avah Erickson",
+"Johnny Campbell",
+"Addison Conway",
+"Orlando Schwartz",
+"Lilliana Stewart",
+"Nolan Rocha",
+"Emmie Rice",
+"Graham Harrington",
+"Legacy Pope",
+"Gunnar Shepard",
+"Noor Ware",
+"Tadeo Quintana",
+"Kenia Wang",
+"Cohen Vincent",
+"Allyson Blackburn",
+"Zahir House",
+"Sariah Ponce",
+"Langston Trejo",
+"Rosalyn Stanley",
+"Manuel Dunlap",
+"Iliana Holt",
+"Niko Potter",
+"Rory Tang",
+"Rogelio Bennett",
+"Josephine Farrell",
+"Ty Stanley",
+"Gracelyn McCarty",
+"Blaise Blankenship",
+"Rosalee Randall",
+"Trenton McIntosh",
+"Gwen Pena",
+"Marcus Tran",
+"Kylie O’Connor",
+"Princeton Holt",
+"Adelynn Ahmed",
+"Harry Guerrero",
+"Margot Swanson",
+"Hugo Dunlap",
+"Iliana O’Neill",
+"Marcel Morgan",
+"Delilah Berg",
+"Cayson Crane",
+"Della Ho",
+"Morgan Marsh",
+"Adelina Reyes",
+"Eli Davila",
+"Rayne Vang",
+"Jimmy Curry",
+"Alison Phelps",
+"Hamza Bennett",
+"Josephine Cruz",
+"Ryan Hurst",
+"Adalee Lawson",
+"Lane Mayer",
+"Ainhoa Lester",
+"Lee Murphy",
+"Bella Vazquez",
+"Jesse Schroeder",
+"Cameron Vaughn",
+"Remy Santana",
+"Myra Wilkerson",
+"Carmelo Dodson",
+"Etta McGuire",
+"Casey Trevino",
+"Priscilla Peralta",
+"Dangelo Thomas",
+"Elizabeth West",
+"Diego Mueller",
+"Imani Coffey",
+"Kody Flores",
+"Emilia Choi",
+"Khari Cooper",
+"Serenity Zavala",
+"Dillon Hensley",
+"Malaya Roberts",
+"Josiah Blake",
+"Amanda Santana",
+"Mohamed Frost",
+"Paula Massey",
+"Donald Velasquez",
+"Esme Reese",
+"Alijah Knapp",
+"Linda Baker",
+"Ezra Ali",
+"Zelda Middleton",
+"Misael Arnold",
+"Finley Barry",
+"Emery Meyer",
+"Sara Atkinson",
+"Duke Strickland",
+"Nia Hubbard",
+"Forrest Trevino",
+"Priscilla Williams",
+"Oliver Hardin",
+"Vada Marin",
+"Aldo Stark",
+"Kamilah Fuller",
+
+
+
+
+
+"Taniah Mim", "Søren Jensen", "Nina Patel", "Carlos Diaz", "Rifat Simran", "Nusrat Rahman", "Farhana Uddin", "Roksana Chowdhary", "Sharifa Talukdar", "Kavita Mia", "Rubina Akther", "Sultana Mia", "Anwar Khan", "Mehnaz Uddin", "Reema Khan", "Shabana Khatun", "Afreen Islam", "Faria Rahman", "Raisa Khatun", "Rina Akther", "Khaleda Khatun", "Rubel Uddin", "Misbah Islam", "Sumaya Khan", "Rakhi Hossain", "Kusumita Ahmed"];
+
+    function getTodayDay() {
+      const today = new Date();
+      return String(today.getDate()).padStart(2, '0');
+    }
+
+    function showCopyIdMessage(targetBoxId, message) {
+      const box = document.getElementById(targetBoxId);
+      box.innerText = message;
+      box.style.display = 'block';
+      setTimeout(() => {
+        box.style.display = 'none';
+      }, 2000);
+    }
+
+    function updatePasswordOutput(value) {
+      const output = document.getElementById('outputPassword');
+      const day = getTodayDay();
+      output.innerText = value + "#@" + day;
+    }
+
+    function copyPassword() {
+      const inputValue = document.getElementById('inputPassword').value.trim();
+      if (inputValue) {
+        localStorage.setItem('savedPasswordInput', inputValue);
+        updatePasswordOutput(inputValue);
+        navigator.clipboard.writeText(inputValue + "#@" + getTodayDay()).then(() => {
+          showCopyIdMessage("copyIdPasswordBox", "CopyID by " + inputValue + "#@" + getTodayDay());
+        });
+      }
+    }
+
+    function clearInput() {
+      document.getElementById('inputPassword').value = '';
+      localStorage.removeItem('savedPasswordInput');
+      updatePasswordOutput("RAKIB");
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        showCopyIdMessage("copyIdNameBox", "CopyID by " + text);
+      });
+    }
+
+    function changeName() {
       const random = names[Math.floor(Math.random() * names.length)];
-      document.getElementById('randomName').innerText = random;
+      const nameDiv = document.getElementById('randomName');
+      nameDiv.innerText = random;
+      nameDiv.className = 'output clickable-name';
+    }
+
+    function extractNumber() {
+      const input = document.getElementById('numberInput').value;
+      const matches = input.match(/id=(\d{5,})/g) || [];
+      const ids = matches.map(m => m.replace('id=', ''));
+      document.getElementById('extractedNumber').innerText = ids.length ? "UID:\n" + ids.join('\n') : "UID: ";
+    }
+
+    function copyExtractedNumber() {
+      const outputDiv = document.getElementById('extractedNumber');
+      const text = outputDiv.innerText.replace('UID:\n', '').trim();
+      if (text) {
+        navigator.clipboard.writeText(text).then(() => {
+          document.getElementById('numberInput').value = '';
+          outputDiv.innerText = "UID: ";
+        });
+      }
     }
 
     window.onload = function () {
-      document.getElementById('outputPassword').innerText = 'RAKIB#@' + getTodayDay();
+      const savedInput = localStorage.getItem('savedPasswordInput');
+      if (savedInput) {
+        document.getElementById('inputPassword').value = savedInput;
+        updatePasswordOutput(savedInput);
+      } else {
+        updatePasswordOutput("RAKIB");
+      }
+      changeName();
     };
   </script>
 </body>

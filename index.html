@@ -1,22 +1,419 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Password Generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CLASHER_BOY_RAKIB's Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap');
-
+    /* Global Styles */
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
+      font-family: 'Segoe UI', sans-serif;
+      background: #111; /* Default background for unlock panel */
+      color: white;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
-      margin: 0;
+      justify-content: center; /* Vertically center the content */
+      min-height: 100vh; /* Use full viewport height */
+      padding: 20px;
+      margin: 0; /* Ensure no default margin */
+      transition: background 0.5s ease; /* Smooth transition for background */
     }
 
-    .container {
+    /* Animated Border for Unlock Panel & Admin Panel (Common Style) */
+    .animated-border {
+      padding: 5px;
+      border-radius: 12px;
+      background: linear-gradient(270deg, #ff416c, #ff4b2b, #1e90ff, #2ecc71);
+      background-size: 800% 800%;
+      animation: gradientBG 15s ease infinite;
+      display: inline-block;
+      position: relative;
+      z-index: 2; 
+      margin-bottom: 20px; /* Space between the unlock panel and the version info */
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* Content Box for Unlock Panel & Admin Panel */
+    .content-box {
+      background: #222;
+      padding: 20px 30px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 300px;
+      max-width: 90%;
+      position: relative;
+      z-index: 3;
+    }
+    .content-box h1 {
+      font-size: 24px; /* Slightly larger heading */
+      margin-bottom: 15px;
+      color: #00ffff;
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.5); /* Glowing effect */
+    }
+
+    /* General Button Styling */
+    .btn {
+      background: #00ffff;
+      border: none;
+      padding: 10px 20px; /* More padding */
+      margin: 5px;
+      color: #000;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .btn:hover {
+      background: #00cccc;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+    .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* Password input with view/hide button container */
+    .password-container {
+      position: relative;
+      width: 100%;
+      margin: 10px auto;
+      display: flex;
+      align-items: center;
+      border: 1px solid #00ffff;
+      border-radius: 5px;
+      background: #111;
+      box-sizing: border-box;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+    /* Specific styling for admin-input within .password-container */
+    .admin-input.password-container {
+      position: relative; /* Ensure relative positioning for absolute child */
+      display: flex; /* Keep flex for layout */
+      align-items: center;
+    }
+
+    .password-container input[type="password"],
+    .password-container input[type="text"] {
+      padding: 10px 10px; /* Increased padding */
+      padding-right: 40px;
+      border: none;
+      background: none;
+      color: white;
+      text-align: center;
+      flex-grow: 1;
+      outline: none;
+      border-radius: 5px;
+      font-size: 16px; /* Larger font size */
+    }
+    .password-container .toggle-password {
+      background: none;
+      border: none;
+      color: #00ffff;
+      cursor: pointer;
+      padding: 0 10px;
+      font-size: 18px; /* Larger icon */
+      transition: color 0.3s ease;
+      position: absolute;
+      right: 5px;
+      top: 50%; /* Adjusted to be vertically centered */
+      transform: translateY(-50%); /* Adjusted to be vertically centered */
+      z-index: 10;
+    }
+    .password-container .toggle-password:hover {
+      color: #00cccc;
+    }
+
+
+    #unlocked-message {
+      display: none;
+      margin-top: 20px; /* More space */
+      font-size: 20px; /* Larger font */
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 0 0 10px rgba(0, 255, 204, 0.7); /* Glowing effect */
+    }
+
+    /* Trial Password Button */
+    #generateTrialPasswordBtn {
+      background: linear-gradient(90deg, #ff9900, #ff6600); /* Orange gradient */
+      color: white;
+      font-size: 15px; /* Slightly smaller but still prominent */
+      padding: 10px 20px;
+      margin-top: 15px; /* Added margin top to push it below inputs */
+      margin-bottom: 0px; /* Removed bottom margin to reduce space */
+      width: 100%; /* Full width */
+      box-shadow: 0 4px 8px rgba(255,153,0,0.4);
+    }
+    #generateTrialPasswordBtn:hover {
+        background: linear-gradient(90deg, #ff6600, #ff9900);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(255,153,0,0.6);
+    }
+
+    /* Unlock Tool / Admin Panel Buttons Layout */
+    .button-group {
+        display: flex;
+        justify-content: space-around; /* Distribute space evenly */
+        margin-top: 10px; /* Reduced margin to make it closer to inputs */
+        gap: 10px; /* Space between buttons */
+    }
+    .button-group .btn {
+        flex: 1; /* Take equal space */
+        min-width: 120px; /* Ensure they don't get too small */
+    }
+    .button-group .btn:first-child { /* Specific style for Unlock Tool button */
+        background: linear-gradient(45deg, #1e90ff, #0056b3); /* Blue gradient */
+        color: white;
+        box-shadow: 0 4px 8px rgba(30,144,255,0.4);
+    }
+    .button-group .btn:first-child:hover {
+        background: linear-gradient(45deg, #0056b3, #1e90ff);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(30,144,255,0.6);
+    }
+    .button-group .btn:last-child { /* Specific style for Admin Panel button */
+        background: linear-gradient(45deg, #6a11cb, #2575fc); /* Purple/Blue gradient */
+        color: white;
+        box-shadow: 0 4px 8px rgba(106,17,203,0.4);
+    }
+    .button-group .btn:last-child:hover {
+        background: linear-gradient(45deg, #2575fc, #6a11cb);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(106,17,203,0.6);
+    }
+
+
+    /* Admin Panel specific styles */
+    #adminPanel {
+        display: none; /* Initially hidden, controlled by JS */
+        text-align: left;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #444;
+    }
+    #adminPanel h2 {
+        font-size: 24px;
+        color: #00ffff;
+        margin-bottom: 15px;
+        text-align: center;
+        text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    }
+    #adminPanel h3 {
+        font-size: 18px; /* Slightly larger sub-heading */
+        color: #00ffff;
+        margin-top: 20px; /* More space */
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    #adminPanel label {
+        display: block;
+        margin-bottom: 8px; /* More space below labels */
+        font-size: 15px;
+        color: #ddd;
+        font-weight: bold;
+    }
+    /* Updated for admin-input class within password-container */
+    #adminPanel .password-container input[type="text"].admin-input,
+    #adminPanel .password-container input[type="password"].admin-input,
+    #adminPanel input[type="file"] {
+        width: 100%; 
+        padding: 10px; /* Increased padding */
+        padding-right: 40px; /* Space for toggle button */
+        margin-bottom: 15px; /* More space */
+        border: 1px solid #00ffff;
+        border-radius: 5px;
+        background: #111;
+        color: white;
+        box-sizing: border-box;
+        font-size: 16px; /* Larger font */
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+    #adminPanel input[type="file"] {
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+    #adminPanel .admin-btn {
+        width: 100%;
+        padding: 12px; /* More padding */
+        margin-top: 15px;
+        background: linear-gradient(45deg, #2ecc71, #28a745); /* Green gradient */
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(46,204,113,0.4);
+    }
+    #adminPanel .admin-btn:hover {
+        background: linear-gradient(45deg, #28a745, #2ecc71);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(46,204,113,0.6);
+    }
+    #adminPanel .message {
+        margin-top: 15px;
+        color: #ffeb3b;
+        font-size: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: rgba(255, 235, 59, 0.1);
+        border: 1px solid rgba(255, 235, 59, 0.3);
+    }
+
+    #adminPanel .master-reset-btn,
+    #adminPanel .logout-btn-common {
+        background: linear-gradient(45deg, #dc3545, #c82333); /* Red gradient */
+        color: white;
+        font-weight: bold;
+        padding: 8px 12px; /* Smaller padding for slim look */
+        font-size: 13px; /* Smaller font */
+        border: none; /* Removed border */
+        flex-grow: 1; /* Allow them to grow */
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(220,53,69,0.4);
+    }
+    #adminPanel .master-reset-btn:hover,
+    #adminPanel .logout-btn-common:hover {
+        background: linear-gradient(45deg, #c82333, #dc3545);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(220,53,69,0.6);
+    }
+    #adminPanel .bottom-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px; /* Reduced gap for slim look */
+        margin-top: 20px; /* Adjusted margin */
+    }
+    #adminPanel select {
+        width: 100%;
+        padding: 10px; /* Increased padding */
+        margin-bottom: 15px;
+        border: 1px solid #00ffff;
+        border-radius: 5px;
+        background: #111;
+        color: white;
+        box-sizing: border-box;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%2300ffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center; /* Adjusted position */
+        background-size: 24px; /* Larger arrow */
+        font-size: 16px;
+    }
+
+    /* Expired password message and contact buttons */
+    #expired-password-section {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(255, 65, 108, 0.1); /* Light red background */
+        border: 1px solid #ff416c;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    #expired-password-section p {
+        color: #ff416c;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 5px rgba(255, 65, 108, 0.5);
+        text-align: center; /* Center the text */
+    }
+    #expired-password-section .contact-buttons-group {
+        display: flex;
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 10px; /* Space between buttons */
+        width: 100%; /* Take full width */
+        align-items: center; /* Center buttons horizontally */
+        margin-bottom: 15px; /* Space before admin button */
+    }
+    .contact-btn {
+        background: linear-gradient(45deg, #1e90ff, #0056b3);
+        color: white;
+        font-weight: bold;
+        padding: 12px 20px; /* Increased padding */
+        border-radius: 25px; /* More rounded */
+        border: none;
+        box-shadow: 0 4px 8px rgba(30,144,255,0.4);
+        width: 180px; /* Wider buttons */
+        font-size: 15px;
+        text-align: center;
+    }
+    .contact-btn:hover {
+        background: linear-gradient(45deg, #0056b3, #1e90ff);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(30,144,255,0.6);
+    }
+    /* New style for the Admin Panel button within the expired section */
+    .admin-panel-from-expired-btn {
+        background: linear-gradient(45deg, #6a11cb, #2575fc); /* Purple/Blue gradient */
+        color: white;
+        font-weight: bold;
+        padding: 12px 20px;
+        border-radius: 25px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(106,17,203,0.4);
+        width: 180px;
+        font-size: 15px;
+        margin-top: 10px; /* Space above this button */
+    }
+    .admin-panel-from-expired-btn:hover {
+        background: linear-gradient(45deg, #2575fc, #6a11cb);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(106,17,203,0.6);
+    }
+    /* NEW: Style for the Back to Login button in the expired section */
+    .back-to-login-btn {
+        background: linear-gradient(45deg, #f06, #90f); /* Pink/Purple gradient */
+        color: white;
+        font-weight: bold;
+        padding: 12px 20px;
+        border-radius: 25px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(255,0,102,0.4);
+        width: 180px;
+        font-size: 15px;
+        margin-top: 10px; /* Space above this button */
+    }
+    .back-to-login-btn:hover {
+        background: linear-gradient(45deg, #90f, #f06);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(255,0,102,0.6);
+    }
+
+    /* --- Styles for the UID & Name Tool (New Content) --- */
+    #mainToolContainer {
+        display: none;
+        position: fixed; /* Takes full screen */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #f2f2f2; /* Background for the tool UI */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 100; /* Ensure it's on top */
+        padding: 10px;
+        box-sizing: border-box;
+    }
+    #mainToolContainer .container {
       position: relative;
       background: white;
       border-radius: 15px;
@@ -26,11 +423,13 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       overflow-y: auto;
       overflow-x: hidden;
-      max-height: 100vh;
+      max-height: calc(100vh - 40px);
       z-index: 1;
+      margin-bottom: 20px;
+      color: #333; /* Default text color for the tool container */
     }
-
-    .container::before {
+    /* Animated border for the main tool container (taken from user's provided style) */
+    #mainToolContainer .container::before {
       content: "";
       position: absolute;
       top: -3px;
@@ -43,25 +442,24 @@
       border-radius: 18px;
       animation: animatedBorder 8s ease infinite;
     }
-
     @keyframes animatedBorder {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-
-    .header {
+    /* Header style for the main tool container (taken from user's provided style) */
+    #mainToolContainer .header {
       text-align: center;
-      font-size: 4vw;
+      font-size: 8vmin; /* Adjusted to be responsive */
       font-family: 'Poppins', sans-serif;
       position: relative;
       color: #252839;
-      -webkit-text-stroke: 0.3vw #383d52;
+      -webkit-text-stroke: 0.8vmin #383d52; /* Adjusted to be responsive */
       margin-bottom: 12px;
       text-transform: uppercase;
+      /* Removed white-space: nowrap; and overflow: hidden; from here */
     }
-
-    .header::before {
+    #mainToolContainer .header::before {
       content: attr(data-text);
       position: absolute;
       top: 0;
@@ -69,26 +467,18 @@
       width: 0;
       height: 100%;
       color: #01fe87;
-      -webkit-text-stroke: 0vw #383d52;
+      -webkit-text-stroke: 0vmin #383d52;
       border-right: 2px solid #01fe87;
-      overflow: hidden;
+      overflow: hidden; /* Keep overflow: hidden; here */
+      white-space: nowrap; /* Keep white-space: nowrap; here */
       animation: animate 6s linear infinite;
     }
-
     @keyframes animate {
       0%, 10%, 100% { width: 0; }
       70%, 90% { width: 100%; }
     }
-
-    .buttons-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin: 8px 0;
-    }
-
-    .button {
+    /* Buttons in the main tool container */
+    #mainToolContainer .button {
       flex: 1 1 42%;
       min-width: 100px;
       padding: 8px 14px;
@@ -100,34 +490,46 @@
       cursor: pointer;
       text-align: center;
     }
+    #mainToolContainer .copy { background: linear-gradient(to right, #ff0000, #ffaa00); }
+    #mainToolContainer .clear { background: linear-gradient(to right, #008000, #00cc66); }
 
-    .facebook { background: #3b5998; }
-    .whatsapp { background: #25D366; }
-    .telegram { background: #0088cc; }
-    .copy {
-      background: linear-gradient(to right, #ff0000, #ffaa00);
-    }
-    .clear {
-      background: linear-gradient(to right, #008000, #00cc66);
-    }
-
-    input, textarea, .output {
+    /* Input/textarea/output in the main tool container */
+    #mainToolContainer input[type="text"],
+    #mainToolContainer textarea,
+    #mainToolContainer .output {
       width: 100%;
       padding: 8px;
       margin: 6px 0;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 2px solid #01fe87; /* Green border from example */
+      background: #333; /* Dark background from example */
+      color: #01fe87; /* Green text from example */
       font-size: 15px;
       box-sizing: border-box;
       text-align: center;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+    #mainToolContainer input[type="text"]::placeholder,
+    #mainToolContainer textarea::placeholder {
+      color: rgba(1, 254, 135, 0.7); /* Lighter green placeholder */
+    }
+    #mainToolContainer input[type="text"]:focus,
+    #mainToolContainer textarea:focus {
+      outline: none;
+      border-color: #00cc66; /* Darker green on focus */
+      background: #444; /* Slightly lighter dark background on focus */
+    }
+    #mainToolContainer .output {
+      font-weight: bold; /* Output text is bold */
     }
 
     .label {
       font-weight: bold;
       font-size: 14px;
       margin-top: 10px;
+      color: #333; /* Dark text for labels */
     }
-
+    
     .copy-box {
       display: none;
       margin-top: 4px;
@@ -140,1359 +542,1103 @@
       border-radius: 6px;
       padding: 6px;
     }
-
-    .number-section {
+    .count {
       text-align: center;
-      margin-bottom: 15px;
-    }
-
-    .number-output {
-      font-size: 14px;
-      color: #333;
+      font-size: 13px;
       margin-top: 5px;
-      white-space: pre-line;
+      color: #333;
     }
-
-    .clickable-name {
+    #mainToolContainer .clickable-name {
       cursor: pointer;
-      background: #e0f7fa;
-      border-radius: 5px;
-      padding: 4px;
-      margin-bottom: 3px;
+      background: #333; /* Dark background from example */
+      color: #01fe87; /* Green text from example */
+      border: 2px solid #01fe87;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    #mainToolContainer .clickable-name:hover {
+      background: #444; /* Slightly lighter dark background on hover */
+      border-color: #00cc66; /* Darker green on hover */
     }
 
-    .clickable-name:hover {
-      background: #b2ebf2;
+    /* Version Info Section for Unlock Panel (NEW POSITION) */
+    #versionInfoInUnlockPanel {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 10px;
+        padding: 10px 15px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        width: 100%; 
+        max-width: 300px;
+        margin: 20px auto 0 auto;
+        border: 1px solid rgba(0, 255, 255, 0.5);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        animation: pulseBorder 2s infinite alternate;
     }
+    #versionInfoInUnlockPanel p {
+        margin: 3px 0;
+    }
+    @keyframes pulseBorder {
+        0% { border-color: rgba(0, 255, 255, 0.5); box-shadow: 0 0 5px rgba(0, 255, 255, 0.2); }
+        100% { border-color: rgba(0, 255, 255, 0.8); box-shadow: 0 0 10px rgba(0, 255, 255, 0.6); }
+    }
+    
+    /* Logged in User ID Display within the Unlock Panel (NEW POSITION) */
+    /* This style now applies to the user info displayed in the main tool */
+    #userDisplayInfo {
+        text-align: left; /* Aligned to left */
+        font-size: 15px; /* Slightly larger font for clarity */
+        color: #333;
+        font-weight: bold;
+        background: #e0e0e0;
+        padding: 8px 12px; 
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        display: none; /* Initially hidden, shown when tool is unlocked */
+        max-width: fit-content; /* Adjust width to content */
+        /* Margin handled by parent flexbox now */
+    }
+    #userDisplayInfo span {
+      color: #0056b3; /* Highlighted user name */
+      font-weight: bold;
+    }
+
+    /* Back to Admin Panel button in Admin Login UI (New Position) */
+    /* This style will apply to the "Main Menu" button in the Admin Login panel */
+    #adminLoginPanelBorder .button-group .btn:last-child { 
+        background: linear-gradient(45deg, #f06, #90f); /* Pink/Purple gradient */
+        color: white;
+        padding: 10px 15px; /* Slightly more padding than the user-info one */
+        font-size: 14px; /* Slightly larger font */
+        box-shadow: 0 4px 8px rgba(255,0,102,0.4);
+        width: auto; 
+        min-width: unset; 
+        flex-grow: 1; /* Take equal space in flex container */
+    }
+    #adminLoginPanelBorder .button-group .btn:last-child:hover {
+        background: linear-gradient(45deg, #90f, #f06);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255,0,102,0.6);
+    }
+
+    /* New Flex Container for user info and admin button (NOW IN UNLOCK PANEL) */
+    .user-info-admin-btn-group {
+        display: flex;
+        justify-content: center; /* Center the single item */
+        align-items: center; /* Vertically align items */
+        gap: 10px; /* Space between the elements */
+        width: 100%; /* Take full width of parent */
+        margin-top: 20px; /* Space from above elements */
+        padding-bottom: 0px; /* No extra padding at bottom now */
+        border-top: 1px solid rgba(255,255,255,0.1); /* Separator line */
+        padding-top: 15px; /* Space from separator */
+    }
+
+    /* Animated Border for Admin Panel itself (when visible) */
+    .admin-panel-animated-border {
+        padding: 5px;
+        border-radius: 12px;
+        background: linear-gradient(270deg, #1e90ff, #2ecc71, #ff416c, #ff4b2b); /* Different gradient for admin */
+        background-size: 800% 800%;
+        animation: gradientBG 15s ease infinite;
+        position: relative;
+        z-index: 2;
+    }
+    .admin-panel-animated-border .content-box {
+        background: #2a2a2a; /* Slightly different background for admin panel */
+        padding: 25px 35px; /* More padding */
+        border-radius: 10px;
+        min-width: 320px;
+    }
+    /* Main Menu button in the tool */
+    #mainToolContainer .main-menu-btn {
+      background: linear-gradient(45deg, #6a11cb, #2575fc); /* Purple/Blue gradient */
+      color: white;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 4px 8px rgba(106,17,203,0.4);
+      margin-top: 20px; /* Space from content */
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s ease;
+    }
+    #mainToolContainer .main-menu-btn:hover {
+        background: linear-gradient(45deg, #2575fc, #6a11cb);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(106,17,203,0.6);
+    }
+
+    /* Specific styles for the login and main menu buttons in the main tool */
+    #mainToolContainer .action-buttons {
+      display: flex;
+      justify-content: flex-start; /* Align Login to left */
+      align-items: center; /* Vertically align them */
+      margin-top: 15px;
+      width: 100%; /* Ensure it takes full width of its parent */
+      gap: 10px; /* Space between buttons */
+    }
+    #mainToolContainer .action-buttons .btn-action { /* This is now the "Login" button */
+      background: linear-gradient(45deg, #1e90ff, #0056b3); /* Blue gradient for login/action */
+      color: white;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s ease;
+      /* flex-grow: 1; */ /* Do not let it grow, keep it compact */
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(30,144,255,0.4);
+    }
+    #mainToolContainer .action-buttons .btn-action:hover {
+      background: linear-gradient(45deg, #0056b3, #1e90ff);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(30,144,255,0.6);
+    }
+    #mainToolContainer .action-buttons .btn-main-menu { /* This is now the "Main Menu" button */
+      background: linear-gradient(45deg, #6a11cb, #2575fc); /* Purple/Blue gradient for main menu */
+      color: white;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s ease;
+      margin-left: auto; /* Push it to the right */
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(106,17,203,0.4);
+    }
+    #mainToolContainer .action-buttons .btn-main-menu:hover {
+        background: linear-gradient(45deg, #2575fc, #6a11cb);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(106,17,203,0.6);
+    }
+
+    /* Styles for the Logout Confirmation Modal */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 200; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 300px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        color: #333;
+    }
+
+    .modal-content h3 {
+        margin-top: 0;
+        color: #555;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+        gap: 10px;
+    }
+
+    .modal-buttons button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        flex: 1; /* Make buttons take equal space */
+    }
+
+    .modal-buttons .cancel-btn {
+        background-color: #f44336; /* Red for Cancel */
+        color: white;
+    }
+
+    .modal-buttons .cancel-btn:hover {
+        background-color: #d32f2f;
+    }
+
+    .modal-buttons .logout-btn {
+        background-color: #4CAF50; /* Green for Logout */
+        color: white;
+    }
+
+    .modal-buttons .logout-btn:hover {
+        background-color: #388e3c;
+    }
+
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="animated-border" id="unlockPanelBorder">
+    <div class="content-box">
+      <h1>Please Unlock</h1>
+      <div id="unlock-panel">
+        <div class="password-container" style="margin-bottom: 10px;">
+            <input type="text" id="user-unique-id" placeholder="Enter Your Unique ID" maxlength="8"/> </div>
+        <div class="password-container">
+          <input type="password" id="user-password" placeholder="Enter Your Password" maxlength="5" />
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('user-password', this)">👁️</button>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn" id="unlockToolBtn" onclick="unlockTool()">Unlock Tool</button>
+            <button class="btn" id="showAdminLoginBtn" onclick="showAdminLogin()">Admin Panel</button>
+        </div>
 
-    <!-- Animated Header -->
-    <div class="header" data-text="CLASHER_BOY_RAKIB"> </div>
+        <button class="btn" id="generateTrialPasswordBtn" onclick="generateTrialPassword()">Generate 1-Hour Trial Password</button>
 
-    <!-- UID Extractor -->
-    <div class="number-section">
-      <div class="label">🔍 Extract Your UID From Facebook Links:</div>
-      <textarea id="numberInput" rows="4" placeholder="Paste Facebook links or text here..." oninput="extractNumber()"></textarea>
-      <div class="number-output" id="extractedNumber">UID: </div>
-      <button class="button copy" style="margin-top: 8px;" onclick="copyExtractedNumber()">Copy UID</button>
+        <div id="trialPassMessage" style="color: #00ffcc; font-weight: bold; margin-top: 10px; margin-bottom: 15px; display: none;"></div>
+      </div>
+      <p id="unlocked-message" style="display:none;">Unlocked Successfully!</p>
+      
+      <div id="expired-password-section" style="display:none;">
+        <p>Contact with Admin 👇</p>
+        <div class="contact-buttons-group">
+            <a href="#" target="_blank" class="contact-btn" id="whatsappContactBtn">WhatsApp</a>
+            <a href="#" target="_blank" class="contact-btn" id="telegramContactBtn">Telegram</a>
+        </div>
+        <button class="admin-panel-from-expired-btn" onclick="showAdminLogin()">Admin Panel</button>
+        <button class="back-to-login-btn" onclick="backToUnlockPanel()">Back to Login</button>
+      </div>
+
+      <div id="versionInfoInUnlockPanel">
+          <p><strong>Tool Version:</strong> 1.0.0</p>
+          <p><strong>Last Updated:</strong> June 10, 2025</p>
+          <p>Developed by: CLASHER_BOY_RAKIB</p>
+      </div>
+
     </div>
+  </div>
 
-    <!-- Social Buttons -->
-    <div class="buttons-row">
-      <button class="button facebook">Facebook</button>
-      <button class="button whatsapp">WhatsApp</button>
-      <button class="button telegram">Telegram</button>
+  <div class="animated-border admin-panel-animated-border" id="adminLoginPanelBorder">
+    <div class="content-box">
+        <h2>Admin Login</h2>
+        <div class="password-container admin-input">
+          <input type="password" id="admin-login-pass" placeholder="Enter Admin Password" />
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('admin-login-pass', this)">👁️</button>
+        </div>
+        <div class="button-group">
+            <button class="btn" onclick="loginAdmin()">Login</button>
+            <button class="btn" onclick="backToMainMenuFromAdminLogin()">Main Menu</button> </div>
     </div>
+  </div>
 
-    <!-- Password Input -->
-    <div class="label">Type And Copy Your Own Password:</div>
-    <input type="text" id="inputPassword" placeholder="Example: RAKIB">
-    <div class="output" id="outputPassword"></div>
-    <div class="copy-box" id="copyIdPasswordBox"></div>
+  <div class="animated-border admin-panel-animated-border" id="adminPanelBorder">
+    <div class="content-box">
+      <div id="adminPanel">
+        <h2>Admin Panel</h2>
+        
+        <label for="newAdminPass">Change Admin Panel Password:</label>
+        <div class="password-container admin-input">
+          <input type="password" id="newAdminPass" placeholder="New Admin Password">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('newAdminPass', this)">👁️</button>
+        </div>
 
-    <div class="buttons-row">
-      <button class="button copy" onclick="copyPassword()">Copy Password</button>
-      <button class="button clear" onclick="clearInput()">Clear</button>
+        <h3 style="margin-top: 20px; color: #00ffff;">Manage User Passwords</h3>
+        <label for="userIdToChange">User ID:</label>
+        <div class="password-container admin-input"> <input type="text" id="userIdToChange" placeholder="Enter User ID (e.g., RAKIB_001)" maxlength="8" class="admin-input"> <button type="button" class="toggle-password" onclick="togglePasswordVisibility('userIdToChange', this)">👁️</button> </div>
+        
+        <label for="newUnlockPassForUser">Set User Password (5 Characters):</label>
+        <div class="password-container admin-input">
+            <input type="password" id="newUnlockPassForUser" placeholder="New Password for User" maxlength="5"> <button type="button" class="toggle-password" onclick="togglePasswordVisibility('newUnlockPassForUser', this)">👁️</button>
+        </div>
+        
+        <label for="passwordExpiry">Set Password Expiry (days):</label>
+        <select id="passwordExpiry">
+            <option value="0">No Expiry</option>
+            <option value="1">1 Day</option>
+            <option value="3">3 Days</option>
+            <option value="7">7 Days</option>
+            <option value="10">10 Days</option>
+            <option value="15">15 Days</option>
+            <option value="20">20 Days</option>
+            <option value="25">25 Days</option>
+            <option value="30">30 Days</option>
+        </select>
+
+        <button class="admin-btn" onclick="changePasswords()">Save Passwords & Expiry</button>
+        <div class="message" id="passwordChangeMessage"></div>
+        
+        <label for="nameFile" style="margin-top: 15px;">Import Names from Text File:</label>
+        <input type="file" id="nameFile" accept=".txt">
+        <button class="admin-btn" onclick="importNamesFromFile()">Import Names</button>
+        <div class="message" id="nameImportMessage"></div>
+
+        <div class="bottom-buttons">
+            <button class="master-reset-btn" onclick="confirmMasterReset()">⚠️ Master Reset All Data</button>
+            <button class="logout-btn-common" onclick="logoutAdmin()">Logout Admin</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Name Generator -->
-    <div class="label">Copy Name:</div>
-    <div class="output" id="randomName" class="clickable-name" onclick="copyText('randomName')">Loading...</div>
-    <div class="copy-box" id="copyIdNameBox"></div>
 
-    <div class="buttons-row">
-      <button class="button copy" onclick="copyText('randomName')">Copy Name</button>
-      <button class="button clear" onclick="changeName()">Change Name</button>
+  <div id="mainToolContainer">
+    <div class="container">
+      <div class="header" data-text="CLASHER_BOY_RAKIB"> </div>
+      
+      <div class="action-buttons">
+        <button class="btn-action" onclick="showLogoutConfirmation()">
+          Login: <span id="loggedInUserId">N/A</span>
+        </button>
+        <button class="btn-main-menu" onclick="logoutTool()">Main Menu</button>
+      </div>
+
+      <div class="label">🔍 Paste Facebook links or UIDs:</div>
+      <textarea id="numberInput" rows="4" placeholder="Paste multiple links/UIDs..."></textarea>
+      <textarea id="extractedNumber" rows="4" readonly placeholder="Extracted UIDs will appear here..."></textarea>
+      <div class="count" id="uidCount">Total UID Found: 0</div>
+      <div class="copy-box" id="copyIdMessageBox"></div>
+
+      <div class="label">Type And Copy Your Own Password:</div>
+      <input type="text" id="inputPassword" placeholder="Example: RAKIB">
+      <div class="output" id="outputPassword"></div>
+      <div class="copy-box" id="copyIdPasswordBox"></div>
+      <div style="display: flex; gap: 8px; margin-top: 6px;">
+        <button class="button copy" onclick="copyPassword()">Copy Password</button>
+        <button class="button clear" onclick="clearInput()">Clear</button>
+      </div>
+
+      <div class="label">Select And Click Here To Copy Name:</div>
+      <div class="output clickable-name" id="randomName" onclick="copyName()">Loading...</div>
+      <div class="copy-box" id="copyIdNameBox"></div>
+      <div style="display: flex; gap: 8px; margin-top: 6px;">
+        <button class="button copy" onclick="copyName()">Copy Name</button>
+        <button class="button clear" onclick="changeName()">Change Name</button>
+      </div>
+      <div class="count" id="nameStatus"></div>
+      
+    </div>
+  </div>
+
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <h3>Are you sure you want to log out?</h3>
+      <div class="modal-buttons">
+        <button class="cancel-btn" onclick="hideLogoutConfirmation()">Cancel</button>
+        <button class="logout-btn" onclick="confirmLogout()">Logout</button>
+      </div>
     </div>
   </div>
 
   <script>
-    const names = ["John Doe", 
-"Taniah Mim",
-"Nazma Islam",
-"Simran Khatun",
-"Sabrina Hossain",
-"Rifat Simran",
-"Nisha Mia",
-"Rupa Mahmud",
-"Nila Sikdar",
-"Mahira Talukdar",
-"Sharmin Ahmed",
-"Shanta Uddin",
-"Nusrat Rahman",
-"Sohana Khan",
-"Zannat Akther",
-"Samira Islam",
-"Meher Khatun",
-"Arifa Hossain",
-"Liza Chowdhary",
-"Tasmin Mia",
-"Fariha Mahmud",
-"Rabia Sikdar",
-"Munira Talukdar",
-"Khadija Ahmed",
-"Shirin Uddin",
-"Afsana Rahman",
-"Jannat Khan",
-"Rina Akther",
-"Radhika Islam",
-"Saira Khatun",
-"Momena Hossain",
-"Roksana Chowdhary",
-"Tamanna Mia",
-"Alina Mahmud",
-"Anika Sikdar",
-"Anjum Talukdar",
-"Meem Ahmed",
-"Mariam Uddin",
-"Shaila Rahman",
-"Laila Khan",
-"Noori Akther",
-"Sumaiya Islam",
-"Asma Khatun",
-"Amina Hossain",
-"Lamia Chowdhary",
-"Sumiya Mia",
-"Isha Mahmud",
-"Nilufa Sikdar",
-"Mishti Talukdar",
-"Siti Ahmed",
-"Rumi Uddin",
-"Momo Rahman",
-"Shafina Khan",
-"Rubina Akther",
-"Lubna Islam",
-"Haritha Khatun",
-"Farzana Hossain",
-"Sadaf Chowdhary",
-"Safiya Mia",
-"Hena Mahmud",
-"Salma Sikdar",
-"Rummana Talukdar",
-"Rafina Ahmed",
-"Tushna Uddin",
-"Sakina Rahman",
-"Sabina Khan",
-"Nargis Akther",
-"Sujatha Islam",
-"Mina Khatun",
-"Nabila Hossain",
-"Anoushka Chowdhary",
-"Mahin Mia",
-"Mishka Mahmud",
-"Hina Sikdar",
-"Kanza Talukdar",
-"Sonal Ahmed",
-"Afia Uddin",
-"Zoya Rahman",
-"Bushra Khan",
-"Shuma Akther",
-"Parveen Islam",
-"Kiran Khatun",
-"Sharmeen Hossain",
-"Nadia Chowdhary",
-"Khushbu Mia",
-"Mira Mahmud",
-"Marufa Sikdar",
-"Dilruba Talukdar",
-"Rashida Ahmed",
-"Meherun Uddin",
-"Tuba Rahman",
-"Sumi Khan",
-"Shamsa Akther",
-"Afreen Islam",
-"Shabana Khatun",
-"Shahina Hossain",
-"Tanisha Chowdhary",
-"Sultana Mia",
-"Sufia Mahmud",
-"Riaz Sikdar",
-"Sharifa Talukdar",
-"Nilima Ahmed",
-"Mehnaz Uddin",
-"Roza Rahman",
-"Suma Khan",
-"Rakia Akther",
-"Risha Islam",
-"Salina Khatun",
-"Nafisa Hossain",
-"Malina Chowdhary",
-"Ruba Mahmud",
-"Mahjabin Sikdar",
-"Liyana Talukdar",
-"Samia Ahmed",
-"Nusi Uddin",
-"Sohan Rahman",
-"Sumaya Khan",
-"Raziya Akther",
-"Nazrin Islam",
-"Tania Khatun",
-"Sana Hossain",
-"Shumona Chowdhary",
-"Tasfia Mia",
-"Huma Mahmud",
-"Morsheda Sikdar",
-"Tanvi Talukdar",
-"Razia Ahmed",
-"Firoza Uddin",
-"Tanima Rahman",
-"Nairah Khan",
-"Rafiqua Akther",
-"Shifa Islam",
-"Iman Khatun",
-"Hira Hossain",
-"Shima Chowdhary",
-"Purnima Mia",
-"Naima Mahmud",
-"Kaniz Sikdar",
-"Anushka Talukdar",
-"Sayma Ahmed",
-"Farhana Uddin",
-"Rezwana Rahman",
-"Anwar Khan",
-"Rima Akther",
-"Ruhi Islam",
-"Sabera Khatun",
-"Nadiya Hossain",
-"Sabila Chowdhary",
-"Hannan Mia",
-"Shireen Mahmud",
-"Nurjahan Sikdar",
-"Sonia Talukdar",
-"Nahid Ahmed",
-"Usha Uddin",
-"Tanjina Rahman",
-"Sahar Khan",
-"Mizan Akther",
-"Shamima Islam",
-"Asiya Khatun",
-"Maisha Hossain",
-"Nilufer Chowdhary",
-"Tazeen Mia",
-"Tanjila Mahmud",
-"Zeenat Sikdar",
-"Riana Talukdar",
-"Dilara Ahmed",
-"Zara Uddin",
-"Rabeya Rahman",
-"Mona Khan",
-"Noor Akther",
-"Shama Islam",
-"Niharika Khatun",
-"Nayema Hossain",
-"Akila Chowdhary",
-"Mahi Mia",
-"Shafia Mahmud",
-"Amira Sikdar",
-"Nimra Talukdar",
-"Ruma Ahmed",
-"Prity Uddin",
-"Sania Rahman",
-"Zakia Khan",
-"Alia Akther",
-"Bibi Islam",
-"Tashfia Khatun",
-"Samina Hossain",
-"Erina Chowdhary",
-"Ascha Mia",
-"Rishika Mahmud",
-"Tanika Sikdar",
-"Sharmila Talukdar",
-"Khalida Ahmed",
-"Suman Uddin",
-"Mim Rahman",
-"Ahsina Khan",
-"Shabnam Akther",
-"Raima Islam",
-"Anousha Khatun",
-"Rakhi Hossain",
-"Kashifa Chowdhary",
-"Maimuna Mia",
-"Marzia Mahmud",
-"Rahima Sikdar",
-"Sadiya Talukdar",
-"Yasmin Ahmed",
-"Sita Uddin",
-"Rajia Rahman",
-"Afifa Khan",
-"Sumona Akther",
-"Misbah Islam",
-"Shahana Khatun",
-"Sanam Hossain",
-"Kaderia Chowdhary",
-"Zahira Mia",
-"Aisha Mahmud",
-"Aleya Sikdar",
-"Amena Ahmed",
-"Anjuman Uddin",
-"Anwara Rahman",
-"Asmani Khan",
-"Atia Akther",
-"Aysha Islam",
-"Barsha Khatun",
-"Bilkis Hossain",
-"Bonna Chowdhary",
-"Chhaya Mahmud",
-"Dalia Sikdar",
-"Eliya Talukdar",
-"Elma Ahmed",
-"Fahmida Uddin",
-"Faria Rahman",
-"Fatema Khan",
-"Fiza Akther",
-"Fuli Islam",
-"Giti Khatun",
-"Gulshan Hossain",
-"Habiba Chowdhary",
-"Hana Mia",
-"Hasna Mahmud",
-"Heena Sikdar",
-"Humaira Talukdar",
-"Ishrat Ahmed",
-"Jasmin Uddin",
-"Joba Rahman",
-"Kajol Khan",
-"Karishma Akther",
-"Kashfia Islam",
-"Khaleda Khatun",
-"Laboni Mahmud",
-"Latifa Sikdar",
-"Lima Talukdar",
-"Mahbuba Ahmed",
-"Maleka Uddin",
-"Marjan Rahman",
-"Mili Khan",
-"Minara Akther",
-"Monira Islam",
-"Moushumi Khatun",
-"Munia Hossain",
-"Najma Chowdhary",
-"Nasima Mia",
-"Nazia Mahmud",
-"Nazmun Sikdar",
-"Neela Talukdar",
-"Nigar Ahmed",
-"Nowshin Rahman",
-"Poppy Khan",
-"Priyanka Akther",
-"Raisa Khatun",
-"Rokeya Chowdhary",
-"Rozina Mia",
-"Rumana Mahmud",
-"Sadia Sikdar",
-"Kabita Talukdar",
-"Kabila Ahmed",
-"Kadija Uddin",
-"Kafia Rahman",
-"Kajal Khan",
-"Kalpana Akther",
-"Kamala Islam",
-"Kanta Khatun",
-"Kanika Hossain",
-"Karima Chowdhary",
-"Kawsar Mia",
-"Kaziya Mahmud",
-"Keisha Sikdar",
-"Keya Talukdar",
-"Khatija Ahmed",
-"Kheya Rahman",
-"Khushboo Khan",
-"Kirti Akther",
-"Komal Islam",
-"Koushani Khatun",
-"Kripa Hossain",
-"Kriti Chowdhary",
-"Kusum Mia",
-"Kusuma Mahmud",
-"Kuhu Sikdar",
-"Kunti Talukdar",
-"Kusumita Ahmed",
-"Kholida Uddin",
-"Kismat Rahman",
-"Kisha Khan",
-"Kishori Akther",
-"Krishika Islam",
-"Kendra Khatun",
-"Kajori Hossain",
-"Kanini Chowdhary",
-"Kalyani Mia",
-"Kirtana Mahmud",
-"Kinkini Sikdar",
-"Kamini Talukdar",
-"Kanti Ahmed",
-"Kaviya Uddin",
-"Kareemah Rahman",
-"Khushali Khan",
-"Komola Akther",
-"Krishani Islam",
-"Krithika Khatun",
-"Kadambini Hossain",
-"Kamrunnahar Chowdhary",
-"Kavita Mia",
-"Kantha Mahmud",
-"Kalika Sikdar",
-"Kandra Talukdar",
-"Koyel Ahmed",
-"Kiranmayee Uddin",
-"Kushi Rahman",
-"Kiranpreet Khan",
-"Kalpita Akther",
-"Kausar Islam",
-"Kareena Khatun",
-"Kanchan Hossain",
-"Kasma Chowdhary",
-"Kirana Mia",
-"Kanchana Mahmud",
-"Kesia Sikdar",
-"Kinza Talukdar",
-"Kashaf Ahmed",
-"Khatun Uddin",
-"Kanchani Rahman",
-"Kani Khan",
-"Kamrun Akther",
-"Kamrul Islam",
-"Kulsuma Khatun",
-"Krina Hossain",
-"Kanjana Mia",
-"Khadeeja Mahmud",
-"Kunya Sikdar",
-"Krupa Talukdar",
-"Kanji Ahmed",
-"Kamar Uddin",
-"Kishmita Rahman",
-"Kanara Akther",
-"Kumudini Islam",
-"Krisha Khatun",
-"Kalpitha Hossain",
-"Kitiya Chowdhary",
-"Krishan Mia",
-"Kamari Mahmud",
-"Rafia Sikdar",
-"Raihana Talukdar",
-"Ranya Ahmed",
-"Rasha Uddin",
-"Rasika Rahman",
-"Rasmira Khan",
-"Raza Akther",
-"Rifa Islam",
-"Rimsha Khatun",
-"Rini Hossain",
-"Rista Chowdhary",
-"Rithika Mia",
-"Rukhsana Mahmud",
-"Rubaba Sikdar",
-"Rumiya Talukdar",
-"Rumina Ahmed",
-"Rubel Uddin",
-"Ridhi Rahman",
-"Reema Khan",
-"Ranjana Islam",
-"Rekha Khatun",
-"Roshni Hossain",
-"Rajika Chowdhary",
-"Reshma Mahmud",
-"Rakiba Sikdar",
-"Raina Talukdar",
-"Reena Ahmed",
-"Rufaida Uddin",
-"Rasiya Rahman",
-"Razina Khan",
-"Rukia Akther",
-"Rajnish Islam",
-"Ralina Khatun",
-"Riya Hossain",
-"Rithu Chowdhary",
-"Rasna Mia",
-"Ritu Mahmud",
-"Rajisha Talukdar",
-"Rupi Ahmed",
-"Rasin Uddin",
-"Rosina Rahman",
-"Rookshana Khan",
-"Raheel Akther",
-"Roshan Islam",
-"Raheela Khatun",
-"Romi Hossain",
-"Rafiya Chowdhary",
-"Ranu Mia",
-"Rihana Mahmud",
-"Rinal Sikdar",
-"Rasheeda Talukdar",
-"Rabi Ahmed",
-"Roshika Uddin",
-"Rehnuma Rahman",
-"Rafika Khan",
-"Rumel Akther",
-"Rishma Islam",
-"Rehena Khatun",
-"Rasima Hossain",
-"Ramisha Chowdhary",
-"Rehana Mia",
+    // Default Admin Password (RAKIB40500 for admin, RAKIB for user with password 40500)
+    let ADMIN_PASSWORD = localStorage.getItem('adminPanelPassword') || "RAKIB40500"; 
+    
+    // Object to store individual user passwords and their expiry dates
+    // Example: { "user1": { password: "pass1", expiry: "2025-06-11T..." }, "user2": { ... } }
+    let userPasswords = JSON.parse(localStorage.getItem('userPasswords') || '{}');
+    let currentLoggedInUser = ''; // Stores the ID of the user currently logged in
 
+    // New: Track trial attempts for each user
+    let userTrialAttempts = JSON.parse(localStorage.getItem('userTrialAttempts') || '{}');
 
-"Jamie Huang",
-"Ayaan Bush",
-"Everlee Bernard",
-"Jair Nolan",
-"Itzayana Bernal",
-"Eithan Klein",
-"Elianna Stafford",
-"Alfredo Dillon",
-"Laurel Sutton",
-"Warren Melendez",
-"Bethany Snyder",
-"Thiago McCarthy",
-"Kira Cannon",
-"Archie Dalton",
-"Lilian Brandt",
-"Damir Dixon",
-"Blakely Blevins",
-"Avi Deleon",
-"Gabrielle Nelson",
-"Dylan Carter",
-"Lucy Erickson",
-"Johnny McClure",
-"Estella Sherman",
-"Adan Villalobos",
-"Zoya Lamb",
-"Kaysen Knight",
-"Gracie Lang",
-"Wells Dudley",
-"Hadleigh Le",
-"Damien Compton",
-"Elina Ford",
-"Luis Meyers",
-"Leyla Rodgers",
-"Mathias Villanueva",
-"Monroe Campbell",
-"Christopher Rojas",
-"Adaline Gordon",
-"Karter Morrison",
-"Rebecca Fox",
-"Antonio Escobar",
-"Erin Alexander",
-"Kingston Li",
-"Paige Weaver",
-"Tucker Hudson",
-"Kamila Phillips",
-"Andrew House",
-"Sariah Foley",
-"Mohammad Baker",
-"Isla Francis",
-"Harvey Morrow",
-"Reyna Torres",
-"Jayden Woodward",
-"Drew Ellison",
-"Kye Abbott",
-"Melany Underwood",
-"Reece Hodge",
-"Coraline Bravo",
-"Genesis Rodgers",
-"Selah Jimenez",
-"Silas Li",
-"Paige Casey",
-"Armando Hayden",
-"Avayah Dixon",
-"Camden White",
-"Layla Hester",
-"Rene Short",
-"Cheyenne Kerr",
-"Louie Anderson",
-"Ella Dougherty",
-"Brett Flynn",
-"Dorothy Porter",
-"Rhett Brown",
-"Charlotte Salgado",
-"Trace Liu",
-"Kate Rich",
-"Miller Goodwin",
-"Shiloh Burgess",
-"Kolton Meza",
-"Rosa Corona",
-"Darian Shepherd",
-"Katalina Herrera",
-"River Brock",
-"Jada Dalton",
-"Fletcher Rosales",
-"Kinley Waller",
-"Marley Branch",
-"Luisa Hicks",
-"Maddox Beil",
-"Itzel Whitaker",
-"Keith Cardenas",
-"Raven Holmes",
-"King Truong",
-"Judith Leach",
-"Westin Blanchard",
-"Layne Willis",
-"Remington Garrett",
-"Tessa Deleon",
-"Nasir Mosley",
-"Zaniyah Ibarra",
-"Asa Bowers",
-"Elisa Peterson",
-"Santiago Owen",
-"Mikayla Santana",
-"Mohamed Hurley",
-"Rylan Ortega",
-"Kobe Saunders",
-"Meadow Vaughan",
-"Castiel Burns",
-"Emerson Hodges",
-"Alonzo Rodriguez",
-"Evelyn Soto",
-"Barrett Bowen",
-"Dream Thornton",
-"Malik Ware",
-"Eileen Schneider",
-"Raymond Buck",
-"Livia Booth",
-"Chaim Shields",
-"Analia Hodges",
-"Alonzo Shaw",
-"Emersyn Beard",
-"Nathanael Ventura",
-"Zora Berger",
-"Byron Leblanc",
-"Novalee Pope",
-"Gunnar Davila",
-"Rayne Taylor",
-"Jackson Roach",
-"Lyanna Hood",
-"Brixton Riley",
-"Kayla Cano",
-"Terry Lambert",
-"Nina Wu",
-"Kyson Donovan",
-"Azariah Spence",
-"Cillian Livingston",
-"Milena Petersen",
-"Samson Hansen",
-"Hope Giles",
-"Kole Melton",
-"Kamiyah Mueller",
-"Albert Stevens",
-"Katherine Medina",
-"George Swanson",
-"Helen Parker",
-"Caleb James",
-"Quinn Simmons",
-"Harrison Brooks",
-"Autumn Wall",
-"Issac Pace",
-"Giana Alfaro",
-"Xzavier Clayton",
-"Saige Lopez",
-"Michael Perkins",
-"Sage Sandoval",
-"Brantley Figueroa",
-"Lilith Petersen",
-"Samson Holland",
-"Mariah Hinton",
-"Frankie Golden",
-"Giuliana Rivera",
-"Charles Rosario",
-"Louisa Mathews",
-"Jamir Maxwell",
-"Kyla Weiss",
-"Koa Chase",
-"Angie Taylor",
-"Jackson Clements",
-"Cara Keith",
-"Jagger Parra",
-"Dalary Massey",
-"Donald Scott",
-"Aurora Briggs",
-"Case Larsen",
-"Xiomara Wilson",
-"Daniel Colon",
-"Remy Boyle",
-"Robin Duarte",
-"Kynlee Stephenson",
-"Joe Castro",
-"Eloise Cantrell",
-"Harris Herman",
-"Paulina Frazier",
-"Callum Mason",
-"Sienna Norman",
-"Aziel Vaughn",
-"Reign Collier",
-"Edison Fernandez",
-"Amara Small",
-"Rudy Guzman",
-"Ashley Mueller",
-"Albert Hurst",
-"Adalee Russo",
-"Jamie Cabrera",
-"Daleyza Fuentes",
-"Bowen Ray",
-"Ruth Stewart",
-"Nolan Hebert",
-"Kyleigh Bartlett",
-"Kace Griffin",
-"Charlie Nicholson",
-"Rodrigo Nichols",
-"Aliyah Hernandez",
-"Mason Rios",
-"Brooke Murphy",
-"Cameron Person",
-"Dylan Blackwell",
-"Marcellus Potts",
-"Ellison Barrett",
-"Angelo Morrow",
-"Reyna Ramsey",
-"Luciano Lewis",
-"Ellie Yang",
-"Malcolm Harris",
-"Penelope Barron",
-"Dustin Felix",
-"Paisleigh Wallace",
-"Chase Baldwin",
-"Esmeralda Cummings",
-"Raiden Richards",
-"Trinity Edwards",
-"Adrian Conway",
-"Ryann Velazquez",
-"Drew Farrell",
-"Kassidy Daniels",
-"Xander Harmon",
-"Maren Estrada",
-"Phoenix Walter",
-"Penny Lynch",
-"Zane Moore",
-"Emily Ross",
-"Wesley Daniel",
-"Joy Russell",
-"Weston Hubbard",
-"Rosie Holt",
-"Niko Dunlap",
-"Iliana Rivera",
-"Charles Ellis",
-"Ayla Benson",
-"Desmond Marshall",
-"Adalyn Francis",
-"Harvey Avalos",
-"Paloma McBride",
-"Denver Ortiz",
-"Anna Moran",
-"Tate Stark",
-"Kamilah Glover",
-"Mack Carr",
-"Rowan Avery",
-"Jakari Anderson",
-"Ella Weber",
-"Crew Giles",
-"Bailee Chang",
-"Ari Walter",
-"Penny Alexander",
-"Kingston Barron",
-"Anya Gill",
-"Matthias Espinosa",
-"Braylee Holland",
-"Brady Bates",
-"Madilyn Lambert",
-"Mario McCarthy",
-"Kira Campos",
-"Gideon Kline",
-"Sevyn English",
-"Junior Lu",
-"Emani McDaniel",
-"Major Mathis",
-"Anne Parks",
-"Gianni Rios",
-"Brooke Andrade",
-"Abdiel Silva",
-"Lucia Powell",
-"Bennett Boyer",
-"Chaya Zamora",
-"Quentin Tapia",
-"Michaela Schultz",
-"Cody Jacobson",
-"Royal Goodman",
-"Philip Thornton",
-"Haisley Weiss",
-"Koa Moore",
-"Emily Dennis",
-"Emanuel Erickson",
-"Sabrina Richardson",
-"Robert Townsend",
-"Azalea Christian",
-"Ledger Cannon",
-"Noa Cunningham",
-"Alejandro Lynn",
-"Samira Zamora",
-"Quentin Lindsey",
-"Colette Berry",
-"Adonis Todd",
-"Zariah Reynolds",
-"Vincent Wheeler",
-"Sydney Lawson",
-"Lane Stein",
-"Leilany Reyes",
-"Eli Dejesus",
-"Julissa Chung",
-"Ira Murillo",
-"Mikaela Barnes",
-"Damian Macdonald",
-"Rosalia McFarland",
-"Dane Long",
-"Jade Castro",
-"Jasper Hickman",
-"Scarlette Cunningham",
-"Alejandro Vasquez",
-"Rose Hart",
-"Joel Boyer",
-"Chaya Li",
-"Jorge Christensen",
-"Carmen West",
-"Diego Camacho",
-"Armani Tapia",
-"Samir Howell",
-"Mckenna Khan",
-"Kendrick Mann",
-"Paislee Friedman",
-"Darwin Bell",
-"Melody Rasmussen",
-"Will Marks",
-"Monica Trejo",
-"Wesson Bonilla",
-"Romina McIntyre",
-"Eliseo English",
-"Kelly Blair",
-"Troy Vega",
-"Dakota Reed",
-"Easton Willis",
-"Alexa Shah",
-"Zain Walters",
-"Samara Chung",
-"Ira Carey",
-"Alora Chang",
-"Ari Ortiz",
-"Anna Johnston",
-"Felix Mason",
-"Sienna Price",
-"Brooks Grimes",
-"Braelyn Smith",
-"Liam Rubio",
-"Hadassah Huang",
-"Ayaan Allison",
-"Chelsea Conway",
-"Orlando Guerra",
-"Edith Macdonald",
-"Hugh Clements",
-"Cara Hampton",
-"Hank Glover",
-"Alessia Robertson",
-"Emiliano Vazquez",
-"Journee Watkins",
-"Nash Quinn",
-"Heaven Nguyen",
-"Gabriel Rivas",
-"Averie Shannon",
-"Eliel Steele",
-"Rylie Blair",
-"Troy Norris",
-"Arielle Barton",
-"Cassius Pitts",
-"Nala Duarte",
-"Abdullah Gordon",
-"Taylor Lam",
-"Bodie Vincent",
-"Allyson Potts",
-"Alfred Reyes",
-"Audrey Villanueva",
-"Huxley Bernal",
-"Emmeline Bridges",
-"Mohammed Nava",
-"Scout Bryan",
-"Jaxtyn Acosta",
-"Kaia Burton",
-"Zander Allison",
-"Chelsea Esquivel",
-"Bridger Sharp",
-"Camryn Nicholson",
-"Rodrigo Hayes",
-"Iris Murphy",
-"Cameron Leach",
-"Martha Tapia",
-"Samir Stafford",
-"Bridget Cochran",
-"Danny Horne",
-"Marlowe Giles",
-"Kole English",
-"Kelly Yang",
-"Malcolm Owen",
-"Mikayla Clarke",
-"Stetson May",
-"Adriana Singh",
-"Louis Gardner",
-"Jordyn Weiss",
-"Koa Weber",
-"Alayah Espinosa",
-"Khalid Newman",
-"Oaklynn Collier",
-"Edison Mahoney",
-"Promise Rosario",
-"Jedidiah Leach",
-"Martha Quintero",
-"Thatcher Trevino",
-"Priscilla Walker",
-"Luke Sharp",
-"Camryn Montgomery",
-"Maximiliano Hayes",
-"Iris Ventura",
-"Branson Kim",
-"Gabriella Atkinson",
-"Duke Bravo",
-"Amoura Day",
-"Kayson Lane",
-"Amy Bartlett",
-"Kace Rose",
-"Magnolia Meyer",
-"Tristan Gentry",
-"Amelie Montgomery",
-"Maximiliano Davis",
-"Mia Gilbert",
-"Tobias Baxter",
-"Lara Nguyen",
-"Gabriel Hull",
-"Andi Schwartz",
-"Edwin Flores",
-"Emilia Wilkerson",
-"Carmelo Corona",
-"Marianna Savage",
-"Keaton Delarosa",
-"Iyla Stein",
-"Creed Valenzuela",
-"Henley Guerra",
-"Leland Black",
-"Molly Wells",
-"Max Griffith",
-"Alicia Sexton",
-"Mylo Gross",
-"Angel Dennis",
-"Emanuel McClure",
-"Estella Chase",
-"Otis Arroyo",
-"Kyra Guevara",
-"Tommy Conley",
-"Salem Andersen",
-"Alistair McGuire",
-"April Odom",
-"Kylian Morrow",
-"Reyna Harding",
-"Brodie Walsh",
-"Leia Small",
-"Rudy Maldonado",
-"Elaina Avery",
-"Jakari McKenzie",
-"Briar Reyes",
-"Eli Vaughan",
-"Nancy Kemp",
-"Melvin Pitts",
-"Nala Donaldson",
-"Canaan Calhoun",
-"Thalia Stevens",
-"Zachary Cannon",
-"Noa Bentley",
-"Randy Humphrey",
-"Journi Clayton",
-"Boston Ryan",
-"Morgan Powell",
-"Bennett Thompson",
-"Madison Melton",
-"Lennon Hancock",
-"Katelyn Hurst",
-"Neil McIntyre",
-"Rebekah Crane",
-"Fox Meyer",
-"Sara Horton",
-"Garrett Burke",
-"Vera Moyer",
-"Ahmir Bender",
-"Lilyana McFarland",
-"Dane Curry",
-"Alison Novak",
-"Bishop Patton",
-"Lorelei Gonzalez",
-"Ethan Navarro",
-"Winter Adams",
-"Hudson Odom",
-"Laylani Ruiz",
-"Austin Cortes",
-"Lea Keith",
-"Jagger Felix",
-"Paisleigh Gibbs",
-"Deacon Cunningham",
-"Marley Russo",
-"Jamie Bennett",
-"Josephine Mills",
-"Alex Graham",
-"Alaia Liu",
-"Pedro Hammond",
-"Holly Hurley",
-"Van Guerrero",
-"Margot Archer",
-"Ephraim Banks",
-"Cali Pace",
-"Dior Walker",
-"Hazel Duffy",
-"Kyng Sellers",
-"Mercy Glover",
-"Mack Randall",
-"Christina Delarosa",
-"Osiris Wolfe",
-"Hallie Reeves",
-"Clark Ramos",
-"Alice Wilkerson",
-"Carmelo Pittman",
-"Marie Zuniga",
-"Sincere Rosas",
-"Joelle Faulkner",
-"Jabari Knight",
-"Gracie Orozco",
-"Keanu Burgess",
-"Emory Nelson",
-"Dylan Jones",
-"Sophia Cameron",
-"Rayan Herring",
-"Denver Peck",
-"Yousef Barrera",
-"Beatrice Barry",
-"Emery Merritt",
-"Kaisley Jacobson",
-"Legacy Boyd",
-"Georgia Browning",
-"Rohan Rosales",
-"Kinley Morales",
-"Aaron Gross",
-"Angel Richards",
-"Holden Collier",
-"Ivory Tanner",
-"Bruno McCullough",
-"Hana Cisneros",
-"Alden Zavala",
-"Liv Blankenship",
-"Ernesto Maddox",
-"Zainab Spears",
-"Ameer Guerra",
-"Edith Powell",
-"Bennett Norris",
-"Arielle Dyer",
-"Atreus Schmidt",
-"Kimberly Newton",
-"Santino Hinton",
-"Jaelynn Summers",
-"Darius Lamb",
-"Amaia Larson",
-"Rafael Esparza",
-"Ramona McDowell",
-"Lachlan Hanson",
-"Mariana Thornton",
-"Malik Christensen",
-"Carmen Watts",
-"Dakota Vazquez",
-"Journee Day",
-"Kayson Francis",
-"Daniella Ellison",
-"Kye Diaz",
-"Elena Maynard",
-"Landry Yang",
-"Angelina Salas",
-"Zaiden Cobb",
-"Aviana Hampton",
-"Hank Choi",
-"Karla Mata",
-"Ray Melendez",
-"Bethany Dennis",
-"Emanuel Reese",
-"Rosemary Stephens",
-"Messiah Sharp",
-"Camryn Santana",
-"Mohamed Felix",
-"Paisleigh Richardson",
-"Robert Dejesus",
-"Julissa Woodard",
-"Westley Andrade",
-"Emmy Buchanan",
-"Enrique Moses",
-"Karter Farmer",
-"Jamison Arellano",
-"Faye Nicholson",
-"Rodrigo Owen",
-"Mikayla Barajas",
-"Brennan Velasquez",
-"Esme Collins",
-"Miles Lam",
-"Karina Friedman",
-"Darwin Gray",
-"Sarah Delgado",
-"Colt Gray",
-"Sarah Nielsen",
-"Tru Fleming",
-"Fatima Taylor",
-"Jackson Nunez",
-"Mya Allen",
-"Carter Santos",
-"Alana Knapp",
-"Boden Terrell",
-"Paityn Matthews",
-"Preston Gomez",
-"Natalie Sweeney",
-"Nixon Caldwell",
-"Evelynn Zamora",
-"Quentin Pratt",
-"Ailani Nelson",
-"Dylan Dunn",
-"Olive Rhodes",
-"Titus Moss",
-"Bianca Morgan",
-"Hunter Frederick",
-"Sariyah Murphy",
-"Cameron Norton",
-"Kylee Fletcher",
-"Jay Velez",
-"Megan Craig",
-"Odin Schmidt",
-"Kimberly Sherman",
-"Adan Cross",
-"Nayeli Fisher",
-"Gael Alvarez",
-"Leilani Arnold",
-"Abraham Bradley",
-"Vanessa Parsons",
-"Lewis Parrish",
-"Tiana Gardner",
-"Alan Yang",
-"Angelina Bryant",
-"Jonah McCoy",
-"Mckenzie Truong",
-"Ayan Bartlett",
-"Aubrielle Vazquez",
-"Jesse Francis",
-"Daniella Ponce",
-"Langston Christian",
-"Anahi Ford",
-"Luis Coffey",
-"Paola Kirk",
-"Alessandro Barker",
-"Remington Kelly",
-"Cooper Jimenez",
-"Adeline Schneider",
-"Raymond Kennedy",
-"Brianna Michael",
-"Bronson Bradley",
-"Vanessa Lowe",
-"Julius Hughes",
-"Samantha Schaefer",
-"Ishaan Zhang",
-"Sarai Fowler",
-"Kameron Christensen",
-"Carmen Wilkins",
-"Yusuf Garner",
-"Jacqueline Galindo",
-"Salvatore Fowler",
-"Lennon Smith",
-"Liam Thornton",
-"Haisley Baxter",
-"Tomas Erickson",
-"Sabrina Reeves",
-"Clark Mueller",
-"Imani Willis",
-"Remington Wright",
-"Lily Mueller",
-"Albert Romero",
-"Eliza Juarez",
-"Joaquin McCoy",
-"Mckenzie Carson",
-"Ares Maynard",
-"Carolyn Salas",
-"Zaiden Horn",
-"Avah Erickson",
-"Johnny Campbell",
-"Addison Conway",
-"Orlando Schwartz",
-"Lilliana Stewart",
-"Nolan Rocha",
-"Emmie Rice",
-"Graham Harrington",
-"Legacy Pope",
-"Gunnar Shepard",
-"Noor Ware",
-"Tadeo Quintana",
-"Kenia Wang",
-"Cohen Vincent",
-"Allyson Blackburn",
-"Zahir House",
-"Sariah Ponce",
-"Langston Trejo",
-"Rosalyn Stanley",
-"Manuel Dunlap",
-"Iliana Holt",
-"Niko Potter",
-"Rory Tang",
-"Rogelio Bennett",
-"Josephine Farrell",
-"Ty Stanley",
-"Gracelyn McCarty",
-"Blaise Blankenship",
-"Rosalee Randall",
-"Trenton McIntosh",
-"Gwen Pena",
-"Marcus Tran",
-"Kylie O’Connor",
-"Princeton Holt",
-"Adelynn Ahmed",
-"Harry Guerrero",
-"Margot Swanson",
-"Hugo Dunlap",
-"Iliana O’Neill",
-"Marcel Morgan",
-"Delilah Berg",
-"Cayson Crane",
-"Della Ho",
-"Morgan Marsh",
-"Adelina Reyes",
-"Eli Davila",
-"Rayne Vang",
-"Jimmy Curry",
-"Alison Phelps",
-"Hamza Bennett",
-"Josephine Cruz",
-"Ryan Hurst",
-"Adalee Lawson",
-"Lane Mayer",
-"Ainhoa Lester",
-"Lee Murphy",
-"Bella Vazquez",
-"Jesse Schroeder",
-"Cameron Vaughn",
-"Remy Santana",
-"Myra Wilkerson",
-"Carmelo Dodson",
-"Etta McGuire",
-"Casey Trevino",
-"Priscilla Peralta",
-"Dangelo Thomas",
-"Elizabeth West",
-"Diego Mueller",
-"Imani Coffey",
-"Kody Flores",
-"Emilia Choi",
-"Khari Cooper",
-"Serenity Zavala",
-"Dillon Hensley",
-"Malaya Roberts",
-"Josiah Blake",
-"Amanda Santana",
-"Mohamed Frost",
-"Paula Massey",
-"Donald Velasquez",
-"Esme Reese",
-"Alijah Knapp",
-"Linda Baker",
-"Ezra Ali",
-"Zelda Middleton",
-"Misael Arnold",
-"Finley Barry",
-"Emery Meyer",
-"Sara Atkinson",
-"Duke Strickland",
-"Nia Hubbard",
-"Forrest Trevino",
-"Priscilla Williams",
-"Oliver Hardin",
-"Vada Marin",
-"Aldo Stark",
-"Kamilah Fuller",
+    // New: Store device fingerprints for each password
+    // Example: { "user1": { deviceFingerprint: "abcd123", lastUsed: "2025-06-11T..." } }
+    let passwordDeviceFingerprints = JSON.parse(localStorage.getItem('passwordDeviceFingerprints') || '{}');
 
+    const defaultNames = ["Rakib", "Sakib", "John", "Sohan", "Nayeem"];
+    let allNames = []; 
+    let importedNames = JSON.parse(localStorage.getItem('importedNames') || '[]');
+    let usedNames = JSON.parse(localStorage.getItem("usedNames") || "[]");
+    let copiedCount = parseInt(localStorage.getItem("copiedCount") || "0");
+    let lastCopied = localStorage.getItem("lastCopiedName") || "";
 
+    // IMPORTANT: Replace with your actual Telegram and WhatsApp links
+    const TELEGRAM_LINK = "https://t.me/yourtelegramusername"; 
+    const WHATSAPP_LINK = "https://wa.me/8801XXXXXXXXX"; // e.g., 8801712345678 (without +)
 
+    // Function to generate a simple device fingerprint
+    function getDeviceFingerprint() {
+        const userAgent = navigator.userAgent;
+        const platform = navigator.platform;
+        const screenResolution = `${window.screen.width}x${window.screen.height}`;
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const language = navigator.language;
 
-
-"Taniah Mim", "Søren Jensen", "Nina Patel", "Carlos Diaz", "Rifat Simran", "Nusrat Rahman", "Farhana Uddin", "Roksana Chowdhary", "Sharifa Talukdar", "Kavita Mia", "Rubina Akther", "Sultana Mia", "Anwar Khan", "Mehnaz Uddin", "Reema Khan", "Shabana Khatun", "Afreen Islam", "Faria Rahman", "Raisa Khatun", "Rina Akther", "Khaleda Khatun", "Rubel Uddin", "Misbah Islam", "Sumaya Khan", "Rakhi Hossain", "Kusumita Ahmed"];
-
-    function getTodayDay() {
-      const today = new Date();
-      return String(today.getDate()).padStart(2, '0');
+        // Combine these into a simple hash or string
+        const fingerprintString = `${userAgent}-${platform}-${screenResolution}-${timezone}-${language}`;
+        return btoa(fingerprintString); // Base64 encode for a slightly more compact string
     }
 
-    function showCopyIdMessage(targetBoxId, message) {
-      const box = document.getElementById(targetBoxId);
-      box.innerText = message;
-      box.style.display = 'block';
-      setTimeout(() => {
-        box.style.display = 'none';
-      }, 2000);
+    // Function to generate a random password (used for trial)
+    function generateRandomPassword(length = 5) { // Changed default length to 5
+        // Characters for random password. 
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; 
+        let password = '';
+        for (let i = 0; i < length; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
     }
 
-    function updatePasswordOutput(value) {
-      const output = document.getElementById('outputPassword');
-      const day = getTodayDay();
-      output.innerText = value + "#@" + day;
+    // Function to generate a 1-hour trial password for the entered user ID
+    function generateTrialPassword() {
+        const userIdInput = document.getElementById('user-unique-id');
+        const userId = userIdInput.value.trim();
+        const trialPassMessage = document.getElementById('trialPassMessage');
+        const generateTrialBtn = document.getElementById('generateTrialPasswordBtn');
+
+        if (!userId) {
+            trialPassMessage.style.color = '#ff416c';
+            trialPassMessage.innerText = 'Please enter a Unique ID to generate a trial password.';
+            trialPassMessage.style.display = 'block';
+            return;
+        }
+
+        // New: Enforce 8-character limit for User ID
+        if (userId.length > 8) {
+            trialPassMessage.style.color = '#ff416c';
+            trialPassMessage.innerText = 'User ID cannot exceed 8 characters.';
+            trialPassMessage.style.display = 'block';
+            return;
+        }
+
+        const currentAttempts = userTrialAttempts[userId] || 0;
+
+        if (currentAttempts >= 1) { // Only allow 1 trial
+            trialPassMessage.style.color = '#ff416c';
+            trialPassMessage.innerText = 'You have used your trial attempt for this ID. Please contact Admin or use an existing password.';
+            trialPassMessage.style.display = 'block';
+            generateTrialBtn.style.display = 'none'; // Hide the trial button
+            return;
+        }
+
+        // New: Generate a 5-character random password for trial
+        const newTrialPass = generateRandomPassword(5); // Changed length to 5
+        const expiryDate = new Date();
+        expiryDate.setHours(expiryDate.getHours() + 1); // **Changed to 1 hour expiry**
+
+        userPasswords[userId] = {
+            password: newTrialPass,
+            expiry: expiryDate.toISOString()
+        };
+        localStorage.setItem('userPasswords', JSON.stringify(userPasswords));
+
+        userTrialAttempts[userId] = currentAttempts + 1;
+        localStorage.setItem('userTrialAttempts', JSON.stringify(userTrialAttempts));
+
+        // When a new trial password is generated, clear any existing device fingerprint for this user
+        if (passwordDeviceFingerprints[userId]) {
+            delete passwordDeviceFingerprints[userId];
+            localStorage.setItem('passwordDeviceFingerprints', JSON.stringify(passwordDeviceFingerprints));
+        }
+
+        let message = `Trial password generated for ${userId}: ${newTrialPass} (Expires: ${expiryDate.toLocaleString()}). Please copy and use it.`;
+        
+        trialPassMessage.style.color = '#00ffcc';
+        trialPassMessage.innerText = message;
+        trialPassMessage.style.display = 'block';
+        document.getElementById('user-password').value = newTrialPass; // Auto-fill the password for user
+        generateTrialBtn.style.display = 'none'; // Hide after one trial is given
+        feedback();
     }
 
-    function copyPassword() {
-      const inputValue = document.getElementById('inputPassword').value.trim();
-      if (inputValue) {
-        localStorage.setItem('savedPasswordInput', inputValue);
-        updatePasswordOutput(inputValue);
-        navigator.clipboard.writeText(inputValue + "#@" + getTodayDay()).then(() => {
-          showCopyIdMessage("copyIdPasswordBox", "CopyID by " + inputValue + "#@" + getTodayDay());
-        });
+
+    // Modified unlockTool function
+    function unlockTool() {
+        const userId = document.getElementById('user-unique-id').value.trim();
+        const enteredPass = document.getElementById('user-password').value.trim();
+        const unlockedMessage = document.getElementById('unlocked-message');
+        const unlockPanelBorder = document.getElementById('unlockPanelBorder');
+        const expiredSection = document.getElementById('expired-password-section');
+        const generateTrialBtn = document.getElementById('generateTrialPasswordBtn');
+        const trialPassMessage = document.getElementById('trialPassMessage');
+
+        // Set default RAKIB user and password if not already set by admin or user
+        if (!userPasswords['RAKIB']) {
+            const expiryDate = new Date();
+            expiryDate.setFullYear(expiryDate.getFullYear() + 100); // Effectively no expiry for default
+            userPasswords['RAKIB'] = {
+                password: '40500',
+                expiry: expiryDate.toISOString()
+            };
+            localStorage.setItem('userPasswords', JSON.stringify(userPasswords));
+        }
+
+        if (!userId || !enteredPass) {
+            alert("Please enter both Unique ID and Password.");
+            return;
+        }
+
+        // New: Enforce 8-character limit for User ID
+        if (userId.length > 8) {
+            alert("User ID cannot exceed 8 characters.");
+            return;
+        }
+        // New: Enforce 5-character limit for User Password
+        if (enteredPass.length > 5) {
+            alert("User Password cannot exceed 5 characters.");
+            return;
+        }
+
+
+        const userData = userPasswords[userId];
+        const currentAttempts = userTrialAttempts[userId] || 0;
+        const currentDeviceFingerprint = getDeviceFingerprint();
+
+
+        // Admin Master Unlock (for you, the owner, if you want a back-door)
+        // You can use a special ID like 'admin' and the ADMIN_PASSWORD here
+        // This is primarily for you, the owner. Users will use their specific IDs.
+        if (userId === "admin" && enteredPass === ADMIN_PASSWORD) {
+            currentLoggedInUser = userId; // Set admin as logged in user
+            localStorage.setItem('lastLoggedInUserId', userId); // Store admin as last logged in user
+            unlockPanelBorder.style.display = "none";
+            document.getElementById("mainToolContainer").style.display = "flex";
+            document.body.style.background = '#f2f2f2'; // Change body background for tool
+            document.getElementById("loggedInUserId").innerText = currentLoggedInUser; 
+            unlockedMessage.style.display = 'block';
+            setTimeout(() => unlockedMessage.style.display = 'none', 2000);
+            initTool();
+            return; // Exit function if admin unlocks
+        }
+
+        // Regular user unlock logic
+        if (userData && userData.password === enteredPass) {
+            const expiryTime = new Date(userData.expiry).getTime();
+            const currentTime = new Date().getTime();
+
+            // Check device fingerprint
+            const storedFingerprintData = passwordDeviceFingerprints[userId];
+
+            if (storedFingerprintData) {
+                // If a fingerprint exists, check if it matches the current device
+                if (storedFingerprintData.deviceFingerprint !== currentDeviceFingerprint) {
+                    alert("This password has been used on another device. Please contact Admin.");
+                    return; // Prevent login if fingerprint doesn't match
+                }
+            } else {
+                // If no fingerprint exists, this is the first use on a device, store it
+                passwordDeviceFingerprints[userId] = {
+                    deviceFingerprint: currentDeviceFingerprint,
+                    lastUsed: new Date().toISOString()
+                };
+                localStorage.setItem('passwordDeviceFingerprints', JSON.stringify(passwordDeviceFingerprints));
+            }
+
+
+            if (currentTime <= expiryTime) {
+                // Password is correct and not expired
+                currentLoggedInUser = userId; // Store the successfully logged in user ID
+                localStorage.setItem('lastLoggedInUserId', userId); // For auto-fill next time
+                
+                unlockPanelBorder.style.display = "none"; // Hide unlock panel
+                document.getElementById("mainToolContainer").style.display = "flex"; // Show main tool
+                document.body.style.background = '#f2f2f2'; // Change body background for tool
+                document.getElementById("loggedInUserId").innerText = currentLoggedInUser; 
+                unlockedMessage.style.display = 'block'; 
+                setTimeout(() => unlockedMessage.style.display = 'none', 2000); 
+                initTool(); // Initialize the tool
+            } else {
+                // Password expired
+                document.getElementById('unlock-panel').style.display = 'none'; // Hide regular unlock panel
+                expiredSection.style.display = 'flex'; // Show expired section
+
+                if (currentAttempts >= 1) { // Changed to 1
+                    generateTrialBtn.style.display = 'none'; // Hide trial button if max attempts reached
+                    trialPassMessage.style.display = 'none'; // Hide trial message
+                } else {
+                    generateTrialBtn.style.display = 'block'; // Show trial button if still eligible
+                    trialPassMessage.innerText = `Your password has expired. You have ${1 - currentAttempts} trial(s) left.`;
+                    trialPassMessage.style.color = '#ffeb3b'; // Warning color
+                    trialPassMessage.style.display = 'block';
+                }
+                alert("Password for this ID has expired! Please contact Admin or generate a new trial.");
+            }
+        } else {
+            alert("Wrong Unique ID or Password!");
+        }
+    }
+
+    // Modify checkPasswordExpiry to pre-fill user ID if logged in previously and auto-unlock
+    function checkPasswordExpiry() {
+        const userIdInput = document.getElementById('user-unique-id');
+        const unlockPanel = document.getElementById('unlock-panel');
+        const expiredSection = document.getElementById('expired-password-section');
+        const unlockPanelBorder = document.getElementById('unlockPanelBorder');
+        const adminLoginPanelBorder = document.getElementById('adminLoginPanelBorder');
+        const adminPanelBorder = document.getElementById('adminPanelBorder');
+        const generateTrialBtn = document.getElementById('generateTrialPasswordBtn');
+        const trialPassMessage = document.getElementById('trialPassMessage');
+
+
+        // Hide all panels initially
+        unlockPanelBorder.style.display = "none";
+        adminLoginPanelBorder.style.display = "none";
+        adminPanelBorder.style.display = "none";
+        document.getElementById("mainToolContainer").style.display = "none";
+        expiredSection.style.display = 'none';
+        trialPassMessage.style.display = 'none'; // Ensure trial message is hidden initially
+
+        // Reset body background to default for unlock panel
+        document.body.style.background = '#111';
+
+        const lastLoggedInUserId = localStorage.getItem('lastLoggedInUserId');
+
+        if (lastLoggedInUserId && userPasswords[lastLoggedInUserId]) {
+            const userData = userPasswords[lastLoggedInUserId];
+            const expiryTime = new Date(userData.expiry).getTime();
+            const currentTime = new Date().getTime();
+            const currentDeviceFingerprint = getDeviceFingerprint();
+            const storedFingerprintData = passwordDeviceFingerprints[lastLoggedInUserId];
+
+            // Check device fingerprint
+            if (storedFingerprintData && storedFingerprintData.deviceFingerprint !== currentDeviceFingerprint) {
+                userIdInput.value = lastLoggedInUserId; // Pre-fill ID
+                document.getElementById('user-password').value = ''; // Clear password field
+                unlockPanelBorder.style.display = "inline-block"; // Show the main unlock panel border
+                unlockPanel.style.display = 'none'; // Hide default unlock panel structure
+                expiredSection.style.display = 'flex'; // Show expired section
+                document.getElementById('expired-password-section').querySelector('p').innerText = "This password has been used on another device. Please contact Admin.";
+                generateTrialBtn.style.display = 'none'; // Hide trial button
+                return; // Exit here as device mismatch
+            }
+
+
+            if (currentTime <= expiryTime) {
+                // If the last logged-in user's password is still valid, auto-unlock
+                currentLoggedInUser = lastLoggedInUserId; // Set as current logged in user
+                localStorage.setItem('lastLoggedInUserId', lastLoggedInUserId); // For auto-fill next time
+                
+                unlockPanelBorder.style.display = "none"; // Hide unlock panel
+                document.getElementById("mainToolContainer").style.display = "flex"; // Show main tool
+                document.body.style.background = '#f2f2f2'; // Change body background for tool
+                document.getElementById("loggedInUserId").innerText = currentLoggedInUser; 
+                unlockedMessage.style.display = 'block'; 
+                setTimeout(() => unlockedMessage.style.display = 'none', 2000); 
+                initTool(); // Initialize the tool
+            } else {
+                // Password expired for last logged-in user, show expiry message
+                userIdInput.value = lastLoggedInUserId; // Pre-fill ID
+                document.getElementById('user-password').value = ''; // Clear password field
+                unlockPanelBorder.style.display = "inline-block"; // Show the main unlock panel border
+                unlockPanel.style.display = 'none'; // Hide default unlock panel structure
+                expiredSection.style.display = 'flex'; // Show expired section
+
+                const currentAttempts = userTrialAttempts[lastLoggedInUserId] || 0;
+                if (currentAttempts >= 1) { // Changed to 1
+                    generateTrialBtn.style.display = 'none'; // Hide trial button if max attempts reached
+                    trialPassMessage.style.color = '#ff416c';
+                    trialPassMessage.innerText = 'Your password has expired. You have used your trial attempt for this ID. Please contact Admin.';
+                    trialPassMessage.style.display = 'block';
+                } else {
+                    generateTrialBtn.style.display = 'block'; // Show trial button if still eligible
+                    trialPassMessage.style.color = '#ffeb3b';
+                    trialPassMessage.innerText = `Your password has expired. You have ${1 - currentAttempts} trial(s) left.`; // Changed to 1
+                    trialPassMessage.style.display = 'block';
+                }
+                return; // Exit here as we've shown the expiry
+            }
+        } else {
+            // No last logged-in user or no valid password, show regular unlock panel
+            unlockPanelBorder.style.display = "inline-block"; // Show the main unlock panel border
+            unlockPanel.style.display = 'block'; // Show default unlock panel
+            generateTrialBtn.style.display = 'block'; // Show trial button for new users
+        }
+    }
+
+
+    // Function to combine all name sources and update the working pool
+    function updateAllNamesList() {
+        allNames = [...defaultNames, ...importedNames]; 
+    }
+
+    async function preloadNames(count = 100000) { // Changed total count to 100,000
+      const batch = 5000; // Load in batches of 5000
+      let loaded = 0;
+      while (loaded < count) {
+        try {
+          const res = await fetch(`https://randomuser.me/api/?results=${batch}&inc=name`);
+          const data = await res.json();
+          const newApiNames = data.results.map(x => `${x.name.first} ${x.name.last}`);
+          // Add new names only if they are not already present to avoid duplicates
+          allNames.push(...newApiNames.filter(name => !allNames.includes(name)));
+          loaded += newApiNames.length;
+          console.log(`Loaded ${loaded} names so far...`);
+        } catch (error) {
+            console.error("Error loading names from API, retrying:", error);
+            // Implement a back-off strategy or limit retries if needed
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retrying
+            break; // Break if too many errors or if API is consistently failing
+        }
       }
-    }
-
-    function clearInput() {
-      document.getElementById('inputPassword').value = '';
-      localStorage.removeItem('savedPasswordInput');
-      updatePasswordOutput("RAKIB");
-    }
-
-    function copyText(id) {
-      const text = document.getElementById(id).innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        showCopyIdMessage("copyIdNameBox", "CopyID by " + text);
-      });
-    }
-
-    function changeName() {
-      const random = names[Math.floor(Math.random() * names.length)];
-      const nameDiv = document.getElementById('randomName');
-      nameDiv.innerText = random;
-      nameDiv.className = 'output clickable-name';
+      console.log(`Finished preloading names. Total unique names available: ${new Set([...allNames, ...importedNames]).size}`);
+      changeName();
+      updateStatus();
     }
 
     function extractNumber() {
-      const input = document.getElementById('numberInput').value;
-      const matches = input.match(/id=(\d{5,})/g) || [];
-      const ids = matches.map(m => m.replace('id=', ''));
-      document.getElementById('extractedNumber').innerText = ids.length ? "UID:\n" + ids.join('\n') : "UID: ";
+      const input = document.getElementById("numberInput").value;
+      const lines = input.split(/\r?\n/);
+      const outputLines = [];
+      let count = 0;
+      for (let line of lines) {
+        const match = line.match(/(?:id=|profile\/|user\/|fbid=)?(\d{5,})/); // More robust regex for various links
+        if (match) {
+          outputLines.push(match[1]);
+          count++;
+        }
+      }
+      document.getElementById("extractedNumber").value = outputLines.join("\n");
+      document.getElementById("uidCount").innerText = `Total UID Found: ${count}`;
     }
 
-    function copyExtractedNumber() {
-      const outputDiv = document.getElementById('extractedNumber');
-      const text = outputDiv.innerText.replace('UID:\n', '').trim();
-      if (text) {
-        navigator.clipboard.writeText(text).then(() => {
-          document.getElementById('numberInput').value = '';
-          outputDiv.innerText = "UID: ";
-        });
+    function copyPassword() {
+      const val = document.getElementById("inputPassword").value.trim() || "RAKIB";
+      localStorage.setItem("savedPasswordInput", val);
+      const output = val + "#@" + new Date().getDate();
+      document.getElementById("outputPassword").innerText = output;
+      navigator.clipboard.writeText(output).then(() => {
+        showMsg("copyIdMessageBox", `Copied: ${output}`); // Fixed ID here
+        feedback();
+      }).catch(err => {
+        console.error("Failed to copy password:", err);
+        alert("Failed to copy password. Please try again.");
+      });
+    }
+
+    function clearInput() {
+      document.getElementById("inputPassword").value = "";
+      localStorage.removeItem("savedPasswordInput");
+      document.getElementById("outputPassword").innerText = "RAKIB#@" + new Date().getDate();
+    }
+
+    function changeName() {
+      const currentAvailableNames = [...new Set([...allNames, ...importedNames])];
+      const unused = currentAvailableNames.filter(name => !usedNames.includes(name));
+
+      if (unused.length === 0) {
+        usedNames = []; 
+        localStorage.setItem("usedNames", JSON.stringify([]));
+        console.log("All names used. Resetting used names.");
+      }
+      const next = unused[Math.floor(Math.random() * unused.length)];
+      document.getElementById("randomName").innerText = next || "No names available.";
+    }
+
+    function copyName() {
+      const nameElement = document.getElementById("randomName");
+      let nameToCopy = nameElement.innerText;
+
+      if (nameToCopy === "Loading..." || nameToCopy === "No names available.") {
+          nameToCopy = "Name"; // Copy "Name" if no valid name is loaded
+      }
+
+      if (!usedNames.includes(nameToCopy) && nameToCopy !== "Name") { // Only track if it's a real name
+        usedNames.push(nameToCopy);
+        copiedCount++;
+        localStorage.setItem("usedNames", JSON.stringify(usedNames));
+        localStorage.setItem("copiedCount", copiedCount);
+        localStorage.setItem("lastCopiedName", nameToCopy);
+      }
+      navigator.clipboard.writeText(nameToCopy).then(() => {
+        showMsg("copyIdNameBox", "Copied: " + nameToCopy);
+        feedback();
+        updateStatus();
+      }).catch(err => {
+        console.error("Failed to copy name:", err);
+        alert("Failed to copy name. Please try again.");
+      });
+    }
+
+    function updateStatus() {
+      const totalCombinedNames = new Set([...allNames, ...importedNames]).size;
+      const last = localStorage.getItem("lastCopiedName") || "None";
+      const idx = (last !== "None" && (allNames.includes(last) || importedNames.includes(last))) ? "Found" : "N/A"; 
+      document.getElementById("nameStatus").innerText =
+        `Total copied: ${copiedCount} | Last copied: ${last} (Status: ${idx}) | Total names: ${totalCombinedNames}`;
+    }
+
+    // Generic function to show temporary messages
+    function showMsg(id, msg) {
+      const box = document.getElementById(id);
+      box.innerText = msg;
+      box.style.display = 'block';
+      setTimeout(() => box.style.display = 'none', 2000);
+    }
+
+    function feedback() {
+      if (navigator.vibrate) navigator.vibrate(100);
+      try {
+        new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg').play();
+      } catch (e) {
+        // Audio playback might be blocked by browser policies
+        console.warn("Audio playback blocked or failed:", e);
       }
     }
 
-    window.onload = function () {
-      const savedInput = localStorage.getItem('savedPasswordInput');
-      if (savedInput) {
-        document.getElementById('inputPassword').value = savedInput;
-        updatePasswordOutput(savedInput);
-      } else {
-        updatePasswordOutput("RAKIB");
+    // --- Admin Panel Functions ---
+    function showAdminLogin() {
+        document.getElementById("unlockPanelBorder").style.display = "none"; // Hide main unlock panel
+        document.getElementById("adminLoginPanelBorder").style.display = "inline-block"; // Show admin login panel
+        document.getElementById("admin-login-pass").value = ""; // Clear password input
+    }
+
+    // Function to go back to the main Unlock Panel from Admin Login Panel
+    function backToMainMenuFromAdminLogin() { // Renamed function
+        document.getElementById("adminLoginPanelBorder").style.display = "none"; // Hide admin login
+        checkPasswordExpiry(); // Re-check expiry to decide which panel to show (unlock or expired)
+    }
+
+    function loginAdmin() {
+        const enteredAdminPass = document.getElementById("admin-login-pass").value;
+        if (enteredAdminPass === ADMIN_PASSWORD) {
+            document.getElementById("adminLoginPanelBorder").style.display = "none"; // Hide login panel
+            document.getElementById("adminPanelBorder").style.display = "inline-block"; // Show actual admin panel's animated border
+            document.getElementById("adminPanel").style.display = "block"; // IMPORTANT: Show the inner admin panel content
+            // Clear input fields when logging in
+            document.getElementById("newAdminPass").value = ""; 
+            document.getElementById("userIdToChange").value = ""; 
+            document.getElementById("newUnlockPassForUser").value = ""; 
+            document.getElementById("passwordExpiry").value = "0"; // Reset dropdown
+            showMsg("passwordChangeMessage", "Logged in to Admin Panel.");
+        } else {
+            alert("Wrong Admin Password!");
+        }
+    }
+
+    function logoutAdmin() {
+        document.getElementById("adminPanelBorder").style.display = "none"; // Hide admin panel
+        document.getElementById("adminPanel").style.display = "none"; // Hide the inner admin panel content too
+        checkPasswordExpiry(); // Re-check expiry to decide which panel to show
+        showMsg("passwordChangeMessage", ""); // Clear any existing message when logging out
+    }
+
+    function changePasswords() {
+        const newAdmin = document.getElementById("newAdminPass").value;
+        const userIdToChange = document.getElementById("userIdToChange").value.trim(); 
+        const newUnlockPassForUser = document.getElementById("newUnlockPassForUser").value; 
+        const expiryDays = parseInt(document.getElementById("passwordExpiry").value);
+        
+        let message = "";
+
+        // Change Admin password
+        if (newAdmin) {
+            ADMIN_PASSWORD = newAdmin;
+            localStorage.setItem('adminPanelPassword', newAdmin);
+            message += "Admin password changed. ";
+        }
+
+        // Change individual user password
+        if (userIdToChange && newUnlockPassForUser) {
+            // Enforce 5-character password for user
+            if (newUnlockPassForUser.length !== 5) { // Changed to 5
+                showMsg("passwordChangeMessage", "User password must be exactly 5 characters long.");
+                return; // Stop function if password length is not 5
+            }
+            // Enforce 8-character limit for User ID in admin panel
+            if (userIdToChange.length > 8) { // Changed to 8
+                showMsg("passwordChangeMessage", "User ID cannot exceed 8 characters.");
+                return; // Stop function if User ID length is too long
+            }
+
+            const expiryDate = new Date();
+            if (expiryDays > 0) {
+                expiryDate.setDate(expiryDate.getDate() + expiryDays);
+            } else {
+                expiryDate.setFullYear(expiryDate.getFullYear() + 100); // Effectively no expiry
+            }
+
+            userPasswords[userIdToChange] = {
+                password: newUnlockPassForUser,
+                expiry: expiryDate.toISOString()
+            };
+            localStorage.setItem('userPasswords', JSON.stringify(userPasswords));
+            
+            // Reset trial attempts for this user when admin sets a new password
+            delete userTrialAttempts[userIdToChange]; 
+            localStorage.setItem('userTrialAttempts', JSON.stringify(userTrialAttempts));
+
+            // IMPORTANT: When admin changes password, reset the device fingerprint for that user
+            if (passwordDeviceFingerprints[userIdToChange]) {
+                delete passwordDeviceFingerprints[userIdToChange];
+                localStorage.setItem('passwordDeviceFingerprints', JSON.stringify(passwordDeviceFingerprints));
+            }
+
+            message += `Password for user '${userIdToChange}' updated. Expires in ${expiryDays > 0 ? expiryDays + ' days.' : 'No expiry.'} `;
+        } else if (userIdToChange || newUnlockPassForUser) {
+            message += "Please enter both User ID and New Password to update user's password. ";
+        }
+
+        if (message) {
+            showMsg("passwordChangeMessage", message + "Changes saved.");
+        } else {
+            showMsg("passwordChangeMessage", "No changes made.");
+        }
+        // Clear input fields after saving
+        document.getElementById("newAdminPass").value = "";
+        document.getElementById("userIdToChange").value = "";
+        document.getElementById("newUnlockPassForUser").value = "";
+        document.getElementById("passwordExpiry").value = "0"; // Reset dropdown
+    }
+
+    function importNamesFromFile() {
+        const fileInput = document.getElementById('nameFile');
+        const file = fileInput.files[0];
+        if (!file) {
+            showMsg("nameImportMessage", "Please select a text file.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            const newNames = text.split(/\r?\n/).map(name => name.trim()).filter(name => name.length > 0);
+            
+            importedNames = [...new Set([...importedNames, ...newNames])];
+            localStorage.setItem('importedNames', JSON.stringify(importedNames));
+            
+            updateAllNamesList();
+            changeName();
+            updateStatus();
+
+            showMsg("nameImportMessage", `Imported ${importedNames.length} names (total).`);
+            fileInput.value = '';
+        };
+        reader.onerror = function() {
+            showMsg("nameImportMessage", "Error reading file.");
+        };
+        reader.readAsText(file);
+    }
+
+    // --- Master Reset Function ---
+    function confirmMasterReset() {
+        if (confirm("⚠️ WARNING: This will reset ALL imported names, copied names history, and counts. Your passwords will NOT be reset. Are you sure you want to proceed?")) {
+            masterReset();
+        }
+    }
+
+    function masterReset() {
+        localStorage.removeItem('importedNames');
+        localStorage.removeItem('usedNames');
+        localStorage.removeItem('copiedCount');
+        localStorage.removeItem('lastCopiedName');
+        localStorage.removeItem('savedPasswordInput'); 
+        localStorage.removeItem('lastLoggedInUserId');
+        localStorage.removeItem('userTrialAttempts'); // Reset trial attempts for all users
+        localStorage.removeItem('passwordDeviceFingerprints'); // Reset device fingerprints
+
+        importedNames = [];
+        usedNames = [];
+        copiedCount = 0;
+        lastCopied = "";
+        currentLoggedInUser = '';
+        userTrialAttempts = {}; // Reset in memory also
+        passwordDeviceFingerprints = {}; // Reset in memory also
+        
+        allNames = [...defaultNames]; 
+
+        document.getElementById("inputPassword").value = ""; 
+        document.getElementById("outputPassword").innerText = "RAKIB#@" + new Date().getDate(); 
+        
+        preloadNames(); 
+        updateStatus(); 
+        changeName(); 
+
+        showMsg("nameImportMessage", "Master Reset Complete! All name data and counts reset.");
+        showMsg("passwordChangeMessage", "");
+        checkPasswordExpiry(); // Redirect to the appropriate starting panel
+    }
+
+    // --- Toggle Password Visibility Function ---
+    function togglePasswordVisibility(inputId, buttonElement) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            buttonElement.innerText = "🙈";
+        } else {
+            input.type = "password";
+            buttonElement.innerText = "👁️";
+        }
+    }
+
+    // Function to initialize the tool's content and logic
+    function initTool() {
+      extractNumber();
+      const saved = localStorage.getItem("savedPasswordInput");
+      if (saved) document.getElementById("inputPassword").value = saved;
+      document.getElementById("outputPassword").innerText = (saved || "RAKIB") + "#@" + new Date().getDate();
+      updateAllNamesList(); 
+      preloadNames(); 
+      updateStatus();
+      document.getElementById("numberInput").addEventListener("input", extractNumber);
+    }
+
+    // Function to log out from the main tool and go back to unlock panel
+    function logoutTool() {
+        document.getElementById("mainToolContainer").style.display = "none";
+        document.body.style.background = '#111'; // Reset body background to unlock panel style
+        localStorage.removeItem('lastLoggedInUserId'); // Clear last logged-in user
+        currentLoggedInUser = ''; // Clear current logged in user
+        checkPasswordExpiry(); // Go back to the unlock panel (which will show unlock panel border)
+    }
+
+    // NEW: Function to go back to the main unlock panel from the expired section
+    function backToUnlockPanel() {
+        document.getElementById('expired-password-section').style.display = 'none'; // Hide expired section
+        document.getElementById('unlock-panel').style.display = 'block'; // Show the main unlock panel
+        document.getElementById('generateTrialPasswordBtn').style.display = 'block'; // Ensure trial button is visible
+        document.getElementById('trialPassMessage').style.display = 'none'; // Hide any trial message
+        // Optionally clear password field for fresh entry
+        document.getElementById('user-password').value = ''; 
+    }
+
+    // NEW: Functions for Logout Confirmation Modal
+    function showLogoutConfirmation() {
+        document.getElementById('logoutModal').style.display = 'flex'; // Show modal
+    }
+
+    function hideLogoutConfirmation() {
+        document.getElementById('logoutModal').style.display = 'none'; // Hide modal
+    }
+
+    function confirmLogout() {
+        hideLogoutConfirmation(); // Hide the modal
+        logoutTool(); // Perform the logout
+    }
+
+    // On window load, ensure initial state is correct (unlock panel visible, tool hidden)
+    window.onload = () => {
+      // Set contact links for Telegram and WhatsApp buttons
+      document.getElementById('telegramContactBtn').href = TELEGRAM_LINK;
+      document.getElementById('whatsappContactBtn').href = WHATSAPP_LINK;
+
+      // Initial check for password expiry to determine which panel to show
+      checkPasswordExpiry(); 
+
+      // Pre-fill user ID if one was logged in last
+      const lastLoggedInUserId = localStorage.getItem('lastLoggedInUserId');
+      if (lastLoggedInUserId) {
+          document.getElementById('user-unique-id').value = lastLoggedInUserId;
       }
-      changeName();
     };
   </script>
 </body>

@@ -950,7 +950,7 @@
 
   <script>
     // Default Admin Password (RAKIB40500 for admin, RAKIB for user with password 40500)
-    let ADMIN_PASSWORD = localStorage.getItem('adminPanelPassword') || "RAKIB40500"; 
+    let ADMIN_PASSWORD = localStorage.getItem('adminPanelPassword') || "RAKIB43"; 
     
     // Object to store individual user passwords and their expiry dates
     // Example: { "user1": { password: "pass1", expiry: "2025-06-11T..." }, "user2": { ... } }
@@ -972,8 +972,8 @@
     let lastCopied = localStorage.getItem("lastCopiedName") || "";
 
     // IMPORTANT: Replace with your actual Telegram and WhatsApp links
-    const TELEGRAM_LINK = "https://t.me/yourtelegramusername"; 
-    const WHATSAPP_LINK = "https://wa.me/8801XXXXXXXXX"; // e.g., 8801712345678 (without +)
+    const TELEGRAM_LINK = "https://t.me/RAKIB405001"; 
+    const WHATSAPP_LINK = "https://wa.me/+8801722496042"; // e.g., 8801722496042 (without +)
 
     // Function to generate a simple device fingerprint
     function getDeviceFingerprint() {
@@ -1077,7 +1077,7 @@
             const expiryDate = new Date();
             expiryDate.setFullYear(expiryDate.getFullYear() + 100); // Effectively no expiry for default
             userPasswords['RAKIB'] = {
-                password: '40500',
+                password: '44444',
                 expiry: expiryDate.toISOString()
             };
             localStorage.setItem('userPasswords', JSON.stringify(userPasswords));
